@@ -337,7 +337,7 @@ header.not-scrolled .nav-link.active {
 .menu-toggle {
     display: none;
     font-size: 2rem;
-    color: var(--clr-white);
+    color: var(--clr-dark);
     cursor: pointer;
 }
 
@@ -357,6 +357,7 @@ header.scrolled .menu-toggle {
     background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(244, 247, 251, 0.7)), url('assets/hero-bg.png') center/cover no-repeat;
     color: var(--clr-dark);
     overflow: hidden;
+    padding-top: 80px;
 }
 
 /* We'll use JS to add floating ice cubes for a dynamic background effect if needed later, or CSS animations */
@@ -371,8 +372,8 @@ header.scrolled .menu-toggle {
 }
 
 .hero-logo {
-    max-width: 450px;
-    width: 90%;
+    width: clamp(250px, 40vh, 450px);
+    max-width: 90%;
     margin: 0 auto 30px;
     filter: drop-shadow(0 15px 40px rgba(255, 255, 255, 0.7)) drop-shadow(0 5px 15px rgba(255, 255, 255, 0.5));
 }
@@ -905,6 +906,10 @@ footer {
 }
 
 @media (max-width: 768px) {
+    .header-container {
+        justify-content: flex-end;
+    }
+
     .menu-toggle {
         display: block;
         z-index: 1000;

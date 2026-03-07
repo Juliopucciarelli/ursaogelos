@@ -1,0 +1,16 @@
+{
+  "name": "ursao-gelos",
+  "version": "1.0.0",
+  "description": "Site Ursão Gelos",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "dev": "serve ."
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
