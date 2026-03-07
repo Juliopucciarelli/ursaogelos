@@ -350,14 +350,14 @@ header.scrolled .menu-toggle {
    ========================================================================= */
 .hero {
     position: relative;
-    height: 100vh;
-    min-height: 600px;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(244, 247, 251, 0.7)), url('assets/hero-bg.png') center/cover no-repeat;
     color: var(--clr-dark);
     overflow: hidden;
-    padding-top: 80px;
+    padding-top: 100px;
+    padding-bottom: 80px;
 }
 
 /* We'll use JS to add floating ice cubes for a dynamic background effect if needed later, or CSS animations */
@@ -379,10 +379,10 @@ header.scrolled .menu-toggle {
 }
 
 .hero-subtitle {
-    font-size: 1.25rem;
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
     margin-bottom: 40px;
     color: var(--clr-dark);
-    max-width: 600px;
+    max-width: 800px;
     margin-inline: auto;
     font-weight: 500;
 }
@@ -970,5 +970,9 @@ footer {
 
     .section {
         padding: 70px 0;
+    }
+
+    .scroll-indicator {
+        display: none;
     }
 }
