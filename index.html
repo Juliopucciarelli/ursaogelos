@@ -4,9 +4,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO: Title com palavras-chave + cidade -->
+    <title>Gelo em Sorocaba | Fábrica de Gelo Filtrado para Revenda e Eventos | Ursão Gelos</title>
+
+    <!-- SEO: Meta description com palavras-chave principais -->
     <meta name="description"
-        content="Ursão Gelos - Fábrica de gelos de alta qualidade. Água filtrada, congelamento lento e a melhor qualidade para você. Seja um revendedor!">
-    <title>Ursão Gelos | Fábrica de Gelo</title>
+        content="Ursão Gelos — fábrica de gelo filtrado em Sorocaba-SP. Gelo para revenda, bares, restaurantes e eventos. Água triplamente filtrada, certificada pela Vigilância Sanitária. Ligue já: (15) 99817-9440.">
+
+    <!-- SEO: Keywords relevantes -->
+    <meta name="keywords"
+        content="gelo sorocaba, gelo em sorocaba, gelo filtrado sorocaba, gelo filtrado em sorocaba, gelo para revenda em sorocaba, gelo para eventos em sorocaba, fábrica de gelo sorocaba, comprar gelo sorocaba, gelo atacado sorocaba, gelo triturado sorocaba">
+
+    <!-- SEO: Indexação -->
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Ursão Gelos">
+
+    <!-- SEO: URL Canônica -->
+    <link rel="canonical" href="https://ursaogelos.com.br/">
+
+    <!-- SEO: Geo tags para SEO local -->
+    <meta name="geo.region" content="BR-SP">
+    <meta name="geo.placename" content="Sorocaba">
+    <meta name="geo.position" content="-23.5015;-47.4580">
+    <meta name="ICBM" content="-23.5015, -47.4580">
+
+    <!-- Open Graph (compartilhamento em redes sociais) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ursaogelos.com.br/">
+    <meta property="og:title" content="Gelo em Sorocaba | Fábrica de Gelo Filtrado | Ursão Gelos">
+    <meta property="og:description"
+        content="Fábrica de gelo filtrado em Sorocaba-SP. Gelo para revenda, eventos e grandes quantidades. Água triplamente filtrada e certificada. (15) 99817-9440.">
+    <meta property="og:image" content="https://ursaogelos.com.br/assets/logo.png">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Ursão Gelos">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Gelo em Sorocaba | Fábrica de Gelo Filtrado | Ursão Gelos">
+    <meta name="twitter:description"
+        content="Fábrica de gelo filtrado em Sorocaba-SP. Gelo para revenda, eventos e grandes quantidades.">
+    <meta name="twitter:image" content="https://ursaogelos.com.br/assets/logo.png">
+
+    <!-- Schema.org: LocalBusiness (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": ["LocalBusiness", "FoodEstablishment"],
+      "name": "Ursão Gelos",
+      "description": "Fábrica de gelo filtrado em Sorocaba-SP. Gelo para revenda, bares, restaurantes e eventos em grande quantidade. Água triplamente filtrada e certificada pela Vigilância Sanitária.",
+      "url": "https://ursaogelos.com.br",
+      "telephone": "+55-15-99817-9440",
+      "email": "ursaogelos@gmail.com",
+      "image": "https://ursaogelos.com.br/assets/logo.png",
+      "priceRange": "$$",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Sorocaba",
+        "addressRegion": "SP",
+        "postalCode": "18000-000",
+        "addressCountry": "BR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -23.5015,
+        "longitude": -47.4580
+      },
+      "areaServed": {
+        "@type": "City",
+        "name": "Sorocaba"
+      },
+      "sameAs": [
+        "https://www.instagram.com/ursaogelos"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Produtos Ursão Gelos",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Gelo Filtrado para Revenda em Sorocaba",
+              "description": "Gelo filtrado de alta qualidade para revendedores em Sorocaba e região. Embalagem atacado."
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Gelo para Eventos em Sorocaba",
+              "description": "Gelo em grandes quantidades para festas, churrascos e eventos corporativos em Sorocaba-SP."
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Gelo Triturado Sorocaba",
+              "description": "Gelo triturado ideal para bares, restaurantes e lanchonetes em Sorocaba."
+            }
+          }
+        ]
+      }
+    }
+    </script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,15 +129,16 @@
     <!-- Header / Menu -->
     <header id="header">
         <div class="container header-container">
-            <nav class="navbar" id="navbar">
+            <nav class="navbar" id="navbar" aria-label="Menu principal">
                 <ul class="nav-list">
                     <li><a href="#home" class="nav-link active">Início</a></li>
                     <li><a href="#qualidade" class="nav-link">Qualidade</a></li>
+                    <li><a href="#produtos" class="nav-link">Produtos</a></li>
                     <li><a href="#pontos-venda" class="nav-link">Onde Comprar</a></li>
                     <li><a href="#contato" class="nav-link">Contato</a></li>
                 </ul>
             </nav>
-            <div class="menu-toggle" id="mobile-menu">
+            <div class="menu-toggle" id="mobile-menu" aria-label="Abrir menu" role="button">
                 <i class='bx bx-menu'></i>
             </div>
         </div>
@@ -46,25 +149,28 @@
         <section id="home" class="hero">
             <div class="hero-overlay"></div>
             <div class="container hero-content">
-                <img src="assets/logo.png" alt="Ursão Gelos" class="hero-logo">
-                <p class="hero-subtitle">O GELO PERFEITO PARA SEU EVENTO, ESTABELECIMENTO OU REVENDA!</p>
+                <img src="assets/logo.png" alt="Ursão Gelos — Fábrica de Gelo em Sorocaba SP" class="hero-logo"
+                    width="450" height="300">
+                <!-- H1 principal: inclui palavras-chave "gelo em sorocaba", "eventos" e "revenda" -->
+                <h1 class="hero-subtitle">O Melhor Gelo em Sorocaba<br>para Eventos, Empresas e Revenda!</h1>
                 <div class="hero-cta">
                     <a href="#pontos-venda" class="btn btn-primary">Seja um Revendedor</a>
                     <a href="#qualidade" class="btn btn-outline">Conheça Nossa Qualidade</a>
                 </div>
                 <div class="hero-social">
                     <a href="https://instagram.com/ursaogelos" target="_blank" rel="noopener noreferrer"
-                        class="hero-social-link" title="Instagram">
+                        class="hero-social-link" title="Instagram da Ursão Gelos" aria-label="Siga no Instagram">
                         <i class='bx bxl-instagram'></i>
                     </a>
                     <a href="https://wa.me/5515998179440?text=Ol%C3%A1%2C%20gostaria%20de%20um%20or%C3%A7amento."
-                        target="_blank" rel="noopener noreferrer" class="hero-social-link" title="WhatsApp">
+                        target="_blank" rel="noopener noreferrer" class="hero-social-link"
+                        title="WhatsApp Ursão Gelos" aria-label="Entre em contato pelo WhatsApp">
                         <i class='bx bxl-whatsapp'></i>
                     </a>
                 </div>
             </div>
             <div class="scroll-indicator">
-                <a href="#qualidade">
+                <a href="#qualidade" aria-label="Rolar para a seção de qualidade">
                     <i class='bx bx-chevron-down'></i>
                 </a>
             </div>
@@ -76,8 +182,8 @@
                 <div class="section-header text-center">
                     <span class="subtitle">Excelência COMPROVADA</span>
                     <h2>A Qualidade <span class="text-primary">Ursão Gelos</span></h2>
-                    <p class="section-desc">Nosso processo rigoroso de 3 filtragens, garante um gelo mais puro e
-                        cristalino.</p>
+                    <p class="section-desc">Nossa fábrica de gelo em Sorocaba utiliza processo rigoroso de 3 filtragens,
+                        garantindo um gelo mais puro, cristalino e seguro para consumo.</p>
                 </div>
 
                 <div class="features-grid">
@@ -86,8 +192,8 @@
                             <i class='bx bx-water'></i>
                         </div>
                         <h3>Água Triplamente Filtrada</h3>
-                        <p>Utilizamos água purificada com tripla filtração, garantindo um gelo cristalino, livre de
-                            impurezas e que não altera o sabor da sua bebida.</p>
+                        <p>Nosso gelo filtrado em Sorocaba é produzido com água purificada por tripla filtração,
+                            garantindo um gelo cristalino, livre de impurezas e que não altera o sabor da sua bebida.</p>
                     </div>
 
                     <div class="feature-card highlighted">
@@ -95,8 +201,8 @@
                             <i class='bx bx-check'></i>
                         </div>
                         <h3>Certificado de Qualidade</h3>
-                        <p>Nossa fábrica e processo de produção estão certificados pela Vigilância Sanitária de Sorocaba
-                            - SP.</p>
+                        <p>Nossa fábrica de gelo e processo de produção estão certificados pela Vigilância Sanitária de
+                            Sorocaba - SP, garantindo total segurança para você e seus clientes.</p>
                     </div>
 
                     <div class="feature-card">
@@ -104,44 +210,81 @@
                             <i class='bx bx-store-alt'></i>
                         </div>
                         <h3>Armazenamento Ideal</h3>
-                        <p>Na fábrica, as Câmaras frias de alta tecnologia mantêm os pacotes na temperatura perfeita até
-                            sua distribuição.</p>
+                        <p>Câmaras frias de alta tecnologia mantêm os pacotes de gelo na temperatura perfeita até a
+                            distribuição em toda a região de Sorocaba e cidades vizinhas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Produtos Section -->
+        <section id="produtos" class="section bg-light">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="subtitle">Nossos Produtos</span>
+                    <h2>Gelo Filtrado em <span class="text-primary">Sorocaba</span> para Cada Necessidade</h2>
+                    <p class="section-desc">Da revenda ao evento, a Ursão Gelos tem o gelo certo para o seu negócio em
+                        Sorocaba e região.</p>
+                </div>
+
+                <div class="produtos-grid">
+                    <div class="produto-card">
+                        <div class="produto-icon">
+                            <i class='bx bx-store'></i>
+                        </div>
+                        <h3>Gelo para Revenda em Sorocaba</h3>
+                        <p>Seja um parceiro revendedor da Ursão Gelos. Oferecemos preços de atacado, entrega regular e
+                            suporte comercial para supermercados, conveniências, distribuidoras e postos em Sorocaba e
+                            região.</p>
+                        <a href="#contato" class="btn btn-primary btn-sm">Quero Revender</a>
+                    </div>
+
+                    <div class="produto-card produto-destaque">
+                        <div class="produto-icon">
+                            <i class='bx bx-party'></i>
+                        </div>
+                        <h3>Gelo para Eventos em Sorocaba</h3>
+                        <p>Churrascos, festas, casamentos e eventos corporativos em Sorocaba. Fornecemos gelo filtrado em
+                            grandes quantidades com entrega programada para garantir o frescor do seu evento.</p>
+                        <a href="https://wa.me/5515998179440?text=Ol%C3%A1%2C%20preciso%20de%20gelo%20para%20evento."
+                            target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Pedir pelo
+                            WhatsApp</a>
+                    </div>
+
+                    <div class="produto-card">
+                        <div class="produto-icon">
+                            <i class='bx bx-buildings'></i>
+                        </div>
+                        <h3>Gelo para Bares e Restaurantes</h3>
+                        <p>Fornecimento contínuo de gelo filtrado para bares, restaurantes, lanchonetes e hotéis em
+                            Sorocaba. Gelo em cubo ou triturado com entrega diária e preço especial para grandes
+                            volumes.</p>
+                        <a href="#contato" class="btn btn-primary btn-sm">Solicitar Orçamento</a>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Pontos de Venda Section -->
-        <section id="pontos-venda" class="section bg-light">
+        <section id="pontos-venda" class="section">
             <div class="container pv-container">
                 <div class="pv-content">
                     <span class="subtitle">Onde Encontrar</span>
-                    <h2>Presente nos <span class="text-primary">Melhores</span> Locais</h2>
-                    <p>Encontre os produtos Ursão Gelos em supermercados, conveniências, distribuidoras de bebidas e
-                        postos de combustível parceiros em toda a região de Sorocaba - SP.</p>
-
-                    <!--div class="stats-container">
-                        <div class="stat-item">
-                            <span class="stat-number">500+</span>
-                            <span class="stat-label">Pontos de Venda</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">100%</span>
-                            <span class="stat-label">Satisfação</span>
-                        </div>
-                    </div-->
+                    <h2>Presente nos <span class="text-primary">Melhores</span> Locais de Sorocaba</h2>
+                    <p>Encontre o gelo filtrado Ursão Gelos em supermercados, conveniências, distribuidoras de bebidas e
+                        postos de combustível parceiros em toda a região de Sorocaba - SP. Nossa rede de pontos de venda
+                        cresce a cada dia para levar o melhor gelo em Sorocaba até você.</p>
                 </div>
 
                 <div class="cta-banner">
                     <div class="cta-content">
                         <h3>Aumente suas vendas!</h3>
-                        <p>Junte-se à rede de parceiros Ursão Gelos. Tenha um produto de alta demanda e margem atrativa
-                            em seu estabelecimento com nosso suporte completo.</p>
+                        <p>Junte-se à rede de parceiros revendedores de gelo em Sorocaba. Tenha um produto de alta
+                            demanda e margem atrativa em seu estabelecimento com nosso suporte completo.</p>
                         <a href="#contato" class="btn btn-secondary pulse-animation">Quero ser um Revendedor</a>
                     </div>
                     <div class="cta-image-wrapper">
-                        <!-- Placeholder for dynamic interactive element or image -->
-                        <div class="cubes-animation">
+                        <div class="cubes-animation" aria-hidden="true">
                             <div class="cube cube-1"></div>
                             <div class="cube cube-2"></div>
                             <div class="cube cube-3"></div>
@@ -152,13 +295,13 @@
         </section>
 
         <!-- Contato Section -->
-        <section id="contato" class="section">
+        <section id="contato" class="section bg-light">
             <div class="container">
                 <div class="section-header text-center">
                     <span class="subtitle">Fale Conosco</span>
                     <h2>Entre em <span class="text-primary">Contato</span></h2>
-                    <p class="section-desc">Tem dúvidas ou quer se tornar um revendedor? Preencha o formulário abaixo.
-                    </p>
+                    <p class="section-desc">Quer comprar gelo em Sorocaba, se tornar um revendedor ou pedir orçamento
+                        para evento? Preencha o formulário abaixo.</p>
                 </div>
 
                 <div class="contact-container">
@@ -169,7 +312,7 @@
                             </div>
                             <div class="info-text">
                                 <h4>WhatsApp / Telefone</h4>
-                                <p>(15) 99817-9440</p>
+                                <p><a href="tel:+5515998179440" style="color:inherit;">(15) 99817-9440</a></p>
                             </div>
                         </div>
 
@@ -179,24 +322,30 @@
                             </div>
                             <div class="info-text">
                                 <h4>E-mail</h4>
-                                <p>ursaogelos@gmail.com</p>
+                                <p><a href="mailto:ursaogelos@gmail.com"
+                                        style="color:inherit;">ursaogelos@gmail.com</a></p>
                             </div>
                         </div>
 
-                        <!--div class="info-item">
+                        <div class="info-item">
                             <div class="info-icon">
                                 <i class='bx bx-map'></i>
                             </div>
                             <div class="info-text">
-                                <h4>Endereço Fábrica</h4>
-                                <p>Rua do Frio, 123 - Polo Industrial<br>Cidade, Estado</p>
+                                <h4>Localização</h4>
+                                <p>Sorocaba - SP</p>
                             </div>
-                        </div-->
+                        </div>
 
                         <div class="social-links">
-                            <a href="#" class="social-icon"><i class='bx bxl-instagram'></i></a>
-                            <a href="#" class="social-icon"><i class='bx bxl-facebook'></i></a>
-                            <a href="#" class="social-icon"><i class='bx bxl-linkedin'></i></a>
+                            <a href="https://instagram.com/ursaogelos" target="_blank" rel="noopener noreferrer"
+                                class="social-icon" title="Instagram Ursão Gelos" aria-label="Instagram">
+                                <i class='bx bxl-instagram'></i>
+                            </a>
+                            <a href="https://wa.me/5515998179440" target="_blank" rel="noopener noreferrer"
+                                class="social-icon" title="WhatsApp Ursão Gelos" aria-label="WhatsApp">
+                                <i class='bx bxl-whatsapp'></i>
+                            </a>
                         </div>
                     </div>
 
@@ -204,27 +353,30 @@
                         <div class="form-group row">
                             <div class="input-box">
                                 <label for="name">Nome / Empresa</label>
-                                <input type="text" id="name" placeholder="Como podemos te chamar?" required>
+                                <input type="text" id="name" name="name" placeholder="Como podemos te chamar?"
+                                    required>
                             </div>
                             <div class="input-box">
                                 <label for="phone">Telefone / WhatsApp</label>
-                                <input type="tel" id="phone" placeholder="(00) 00000-0000" required>
+                                <input type="tel" id="phone" name="phone" placeholder="(00) 00000-0000" required>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <div class="input-box">
                                 <label for="email">E-mail</label>
-                                <input type="email" id="email" placeholder="seu@email.com" required>
+                                <input type="email" id="email" name="email" placeholder="seu@email.com" required>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <div class="input-box">
                                 <label for="subject">Assunto</label>
-                                <select id="subject" required>
+                                <select id="subject" name="subject" required>
                                     <option value="" disabled selected>Selecione uma opção</option>
-                                    <option value="revenda">Quero ser um Revendedor</option>
+                                    <option value="revenda">Quero ser um Revendedor de Gelo em Sorocaba</option>
+                                    <option value="evento">Gelo para Evento em Sorocaba</option>
+                                    <option value="empresa">Gelo para Bar / Restaurante / Empresa</option>
                                     <option value="duvida">Dúvidas Gerais</option>
                                     <option value="elogio">Elogios / Reclamações</option>
                                 </select>
@@ -234,8 +386,8 @@
                         <div class="form-group">
                             <div class="input-box">
                                 <label for="message">Mensagem</label>
-                                <textarea id="message" rows="5" placeholder="Escreva sua mensagem aqui..."
-                                    required></textarea>
+                                <textarea id="message" name="message" rows="5"
+                                    placeholder="Escreva sua mensagem aqui..." required></textarea>
                             </div>
                         </div>
 
@@ -247,21 +399,30 @@
         </section>
     </main>
 
-    <!-- Footer -->
+    <!-- Footer com NAP (Name, Address, Phone) para SEO Local -->
     <footer>
         <div class="container footer-content">
             <div class="footer-logo">
                 <h3>Ursão Gelos</h3>
-                <p>O gelo que faz a diferença.</p>
+                <p>O melhor gelo filtrado em Sorocaba.</p>
             </div>
             <div class="footer-links">
                 <a href="#home">Início</a>
                 <a href="#qualidade">Qualidade</a>
+                <a href="#produtos">Produtos</a>
                 <a href="#pontos-venda">Onde Comprar</a>
                 <a href="#contato">Contato</a>
             </div>
+            <!-- NAP estruturado para SEO local -->
+            <address class="footer-nap">
+                <span class="footer-nap-name">Ursão Gelos — Fábrica de Gelo em Sorocaba</span>
+                <span>Sorocaba - SP, Brasil</span>
+                <span><a href="tel:+5515998179440">(15) 99817-9440</a></span>
+                <span><a href="mailto:ursaogelos@gmail.com">ursaogelos@gmail.com</a></span>
+            </address>
             <div class="copyright">
-                <p>&copy; <span id="year"></span> Ursão Gelos. Todos os direitos reservados.</p>
+                <p>&copy; <span id="year"></span> Ursão Gelos. Todos os direitos reservados. | Fábrica de Gelo
+                    Filtrado em Sorocaba - SP</p>
             </div>
         </div>
     </footer>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ursaogelos.com.br/sitemap.xml
