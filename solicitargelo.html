@@ -5,17 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Simule um Orçamento de Gelo em Sorocaba | Ursão Gelos</title>
+    <title>Solicitar Gelo em Sorocaba | Ursão Gelos</title>
     <meta name="description"
-        content="Simule agora o orçamento de gelo filtrado em Sorocaba. Calcule o valor do pedido e frete para revenda, eventos e empresas. Ursão Gelos — (15) 99817-9440.">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://ursaogelos.com.br/orcamento.html">
+        content="Solicite gelo filtrado em Sorocaba. Calcule o valor do pedido e frete. Ursão Gelos — (15) 99817-9440.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://ursaogelos.com.br/solicitargelo.html">
 
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://ursaogelos.com.br/orcamento.html">
-    <meta property="og:title" content="Simule um Orçamento de Gelo | Ursão Gelos">
+    <meta property="og:url" content="https://ursaogelos.com.br/solicitargelo.html">
+    <meta property="og:title" content="Solicitar Gelo | Ursão Gelos">
     <meta property="og:description"
-        content="Calcule o preço do seu pedido de gelo filtrado em Sorocaba em segundos. Inclui cálculo de frete.">
+        content="Solicite gelo filtrado em Sorocaba. Calcule o valor do pedido e frete. Ursão Gelos — (15) 99817-9440.">
     <meta property="og:image" content="https://ursaogelos.com.br/assets/logo.png">
     <meta property="og:locale" content="pt_BR">
     <meta property="og:site_name" content="Ursão Gelos">
@@ -754,14 +754,6 @@
             font-size: 1rem;
         }
 
-        /* Valores ofuscados (modo orçamento) */
-        .valor-ofuscado {
-            filter: blur(6px);
-            user-select: none;
-            pointer-events: none;
-            display: inline-block;
-        }
-
         /* Error state */
         .resultado-error {
             background: #FFF5F5;
@@ -890,7 +882,6 @@
                     <li><a href="index.html#produtos" class="nav-link">Produtos</a></li>
                     <li><a href="index.html#pontos-venda" class="nav-link">Onde Comprar</a></li>
                     <li><a href="index.html#contato" class="nav-link">Contato</a></li>
-                    <li><a href="orcamento.html" class="nav-link active">Orçamento</a></li>
                 </ul>
             </nav>
             <div class="menu-toggle" id="mobile-menu" aria-label="Abrir menu" role="button">
@@ -923,16 +914,16 @@
 
                             <div class="form-group">
                                 <div class="input-box">
-                                    <label for="empresa">Nome da Empresa / Responsável *</label>
+                                    <label for="empresa">Nome da Empresa / Responsável</label>
                                     <input type="text" id="empresa" name="empresa"
-                                        placeholder="Ex: Mercado São Paulo" required>
+                                        placeholder="Ex: Mercado São Paulo">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <div class="input-box">
-                                    <label for="telefone">Telefone / WhatsApp *</label>
-                                    <input type="tel" id="telefone" name="telefone" placeholder="(15) 99999-9999" required>
+                                    <label for="telefone">Telefone / WhatsApp</label>
+                                    <input type="tel" id="telefone" name="telefone" placeholder="(15) 99999-9999">
                                 </div>
                             </div>
 
@@ -1206,7 +1197,7 @@
                     return;
                 }
 
-                var MIN_QTY = 7;
+                var MIN_QTY = 10;
 
                 grid.innerHTML = '';
                 products.forEach(function (p) {
@@ -1401,10 +1392,6 @@
                 var freteAtivo = document.getElementById('calcularFrete').checked;
                 var enderecoEl = document.getElementById('endereco');
 
-                if (!empresa || !telefone) {
-                    alert('Por favor, preencha nome e telefone.'); return;
-                }
-
                 /* Coletar produtos selecionados (checkbox marcado) */
                 var selectedProducts = [];
                 document.querySelectorAll('#produtoGrid .produto-row').forEach(function (card) {
@@ -1489,12 +1476,13 @@
             }
 
             /* ----------------------------------------------------------
-               EXIBIÇÃO DO RESULTADO — Modo orçamento (valores ofuscados)
+               EXIBIÇÃO DO RESULTADO
             ---------------------------------------------------------- */
             function displayResult(data) {
-                var produtos   = data.produtos;
-                var freteAtivo = data.freteAtivo;
-                var precoFrete = data.precoFrete;
+                var produtos    = data.produtos;
+                var freteAtivo  = data.freteAtivo;
+                var distanciaKm = data.distanciaKm;
+                var precoFrete  = data.precoFrete;
 
                 var totalGeral = 0;
                 var html = '';
@@ -1509,19 +1497,18 @@
                         + '<div class="item-body">'
                         + '<div class="item-label">Produto</div>'
                         + '<div class="item-desc">' + esc(p.nome) + '<br>'
-                        + p.quantidade + ' ' + (p.quantidade === 1 ? 'saco' : 'sacos')
-                        + ' × <span class="valor-ofuscado">' + unitFmt + '</span>/saco'
+                        + p.quantidade + ' ' + (p.quantidade === 1 ? 'saco' : 'sacos') + ' × ' + unitFmt + '/saco'
                         + '</div>'
-                        + '<div class="item-value"><span class="valor-ofuscado">' + totalFmt + '</span></div>'
+                        + '<div class="item-value">' + totalFmt + '</div>'
                         + '</div></div>';
                 });
 
                 if (freteAtivo && precoFrete) {
-                    if (!precoFrete.isGratuito) totalGeral += precoFrete.valorTotal;
-
                     var freteFmt = precoFrete.isGratuito
                         ? '<span class="tag-gratuito">Gratuito</span>'
-                        : '<span class="valor-ofuscado">' + fmt(precoFrete.valorTotal) + '</span>';
+                        : fmt(precoFrete.valorTotal);
+
+                    if (!precoFrete.isGratuito) totalGeral += precoFrete.valorTotal;
 
                     html += '<div class="resultado-item">'
                         + '<div class="item-icon"><i class="bx bx-map-pin"></i></div>'
@@ -1534,35 +1521,46 @@
 
                 html += '<div class="resultado-total">'
                     + '<span class="total-label">Total Estimado</span>'
-                    + '<strong class="total-value"><span class="valor-ofuscado">' + fmt(totalGeral) + '</span></strong>'
+                    + '<strong class="total-value">' + fmt(totalGeral) + '</strong>'
                     + '</div>';
 
-                html += '<p class="resultado-aviso">Envie sua solicitação pelo WhatsApp e nossa equipe '
-                    + 'entrará em contato com os valores confirmados.</p>';
+                html += '<p class="resultado-aviso">* Valores estimados sujeitos a confirmação. '
+                    + 'Nossa equipe entrará em contato em breve.</p>';
 
-                /* Mensagem WhatsApp apenas com produtos e endereço — sem valores */
-                var waMsg = 'Olá! Gostaria de solicitar um orçamento de gelo:\n\n';
-                if (data.empresa) waMsg += '*Empresa:* ' + data.empresa + '\n';
-                if (data.telefone) waMsg += '*Telefone:* ' + data.telefone + '\n';
-                waMsg += '\n*Produtos:*\n';
+                /* Montar mensagem do WhatsApp com detalhes do pedido */
+                var waMsg = 'Olá! Fiz uma simulação no site e gostaria de confirmar o pedido:\n\n';
+                waMsg += '*Produtos:*\n';
                 data.produtos.forEach(function (p) {
-                    waMsg += '• ' + p.nome + ': ' + p.quantidade + ' saco(s)\n';
+                    waMsg += '• ' + p.nome + ': ' + p.quantidade + ' saco(s) — ' + fmt(p.preco.valorTotal) + '\n';
                 });
-                if (freteAtivo && data.enderecoCompleto) {
-                    waMsg += '\n*Endereço de entrega:* ' + data.enderecoCompleto;
+                if (freteAtivo && precoFrete) {
+                    var waFrete = precoFrete.isGratuito ? 'Gratuito' : fmt(precoFrete.valorTotal);
+                    waMsg += '\n*Frete:* ' + waFrete;
+                    if (data.enderecoCompleto) {
+                        waMsg += '\n*Endereço de entrega:* ' + data.enderecoCompleto;
+                    }
                 } else {
                     waMsg += '\n*Frete:* Retirada na fábrica';
                 }
+                waMsg += '\n\n*Total estimado: ' + fmt(totalGeral) + '*';
 
-                html += '<a href="https://wa.me/5515998179440?text=' + encodeURIComponent(waMsg) + '"'
+                html += '<div class="resultado-cta-btns">'
+                    + '<a href="https://wa.me/5515998179440?text=' + encodeURIComponent(waMsg) + '"'
                     + ' target="_blank" rel="noopener noreferrer"'
-                    + ' class="btn btn-primary resultado-cta-btn" style="margin-top:18px">'
-                    + '<i class="bx bxl-whatsapp"></i> Solicitar pelo WhatsApp</a>';
+                    + ' class="btn btn-primary resultado-cta-btn">'
+                    + '<i class="bx bxl-whatsapp"></i> Confirmar pelo WhatsApp</a>'
+                    + '<button type="button" class="btn btn-outline resultado-cta-btn" id="btnPdf">'
+                    + '<i class="bx bx-download"></i> Baixar PDF</button>'
+                    + '</div>';
 
                 document.getElementById('resultadoPlaceholder').style.display = 'none';
                 var cont = document.getElementById('resultadoConteudo');
                 cont.innerHTML = html;
                 cont.style.display = 'block';
+
+                document.getElementById('btnPdf').addEventListener('click', function () {
+                    abrirPDF(data, totalGeral);
+                });
 
                 if (window.innerWidth < 992) {
                     document.getElementById('resultadoCard')
