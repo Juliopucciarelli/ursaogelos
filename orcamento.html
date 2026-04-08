@@ -265,58 +265,71 @@
             margin-bottom: 12px;
         }
 
+        /* ---- Lista de Produtos ---- */
         .produto-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .produto-card {
+            display: block;
             border: 2px solid #E8EEF4;
             border-radius: 12px;
-            padding: 10px 14px;
-            background: var(--clr-white);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
+            overflow: hidden;
+        }
+
+        .produto-row {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            flex-wrap: nowrap !important;
             gap: 10px;
-            flex-wrap: nowrap;
+            padding: 10px 14px;
+            border-bottom: 1px solid #E8EEF4;
+            background: var(--clr-white);
+            transition: background 0.2s;
         }
 
-        .produto-card:hover {
-            border-color: var(--clr-primary);
-            box-shadow: 0 2px 8px rgba(0, 159, 227, 0.1);
+        .produto-row:last-child {
+            border-bottom: none;
         }
 
-        .produto-card.selected {
-            border-color: var(--clr-primary);
+        .produto-row.selected {
             background: rgba(0, 159, 227, 0.05);
         }
 
-        /* Checkbox do produto */
         .produto-check {
             width: 17px;
             height: 17px;
-            flex-shrink: 0;
+            flex-shrink: 0 !important;
             cursor: pointer;
             accent-color: var(--clr-primary);
+            margin: 0 !important;
+        }
+
+        .produto-row-label {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 8px;
+            flex: 1 !important;
+            min-width: 0;
+            cursor: pointer;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-weight: normal !important;
         }
 
         .produto-card-icon {
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             background: var(--clr-light);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 1.1rem;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+            font-size: 1rem;
             color: var(--clr-primary);
-            transition: var(--transition);
+            transition: background 0.2s, color 0.2s;
         }
 
-        .produto-card.selected .produto-card-icon {
+        .produto-row.selected .produto-card-icon {
             background: var(--clr-primary);
             color: var(--clr-white);
         }
@@ -326,15 +339,17 @@
             font-weight: 600;
             color: var(--clr-dark);
             line-height: 1.3;
-            flex: 1;
-            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .qty-stepper {
-            display: flex;
-            align-items: center;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
             gap: 5px;
-            flex-shrink: 0;
+            flex-shrink: 0 !important;
         }
 
         .qty-stepper.disabled {
@@ -722,13 +737,19 @@
             line-height: 1.5;
         }
 
+        .resultado-cta-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
         .resultado-cta-btn {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             width: 100%;
-            margin-top: 18px;
             padding: 14px;
             font-size: 1rem;
         }
@@ -894,23 +915,22 @@
 
                             <div class="form-group">
                                 <div class="input-box">
-                                    <label for="empresa">Nome da Empresa / Responsável *</label>
+                                    <label for="empresa">Nome da Empresa / Responsável</label>
                                     <input type="text" id="empresa" name="empresa"
-                                        placeholder="Ex: Mercado São Paulo" required>
+                                        placeholder="Ex: Mercado São Paulo">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <div class="input-box">
-                                    <label for="telefone">Telefone / WhatsApp *</label>
-                                    <input type="tel" id="telefone" name="telefone" placeholder="(15) 99999-9999"
-                                        required>
+                                    <label for="telefone">Telefone / WhatsApp</label>
+                                    <input type="tel" id="telefone" name="telefone" placeholder="(15) 99999-9999">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label-standalone">Produtos *</label>
-                                <p class="form-hint">Informe a quantidade de cada produto desejado.</p>
+                                <p class="form-hint">Selecio o produto e a quantidade.</p>
                                 <div id="produtoGrid" class="produto-grid">
                                     <div class="produto-loading">Carregando produtos…</div>
                                 </div>
@@ -1186,14 +1206,15 @@
                     var uid  = 'chk-' + p.codigo;
 
                     var card = document.createElement('div');
-                    card.className = 'produto-card';
+                    card.className = 'produto-row';
                     card.dataset.codigo = p.codigo;
                     card.dataset.nome   = p.nome;
                     card.innerHTML =
-                        '<input type="checkbox" class="produto-check" id="' + uid + '" aria-label="Selecionar ' + esc(p.nome) + '">'
-                        + '<label for="' + uid + '" class="produto-card-icon" style="cursor:pointer;margin:0">'
-                        + '<i class="bx ' + icon + '"></i></label>'
-                        + '<label for="' + uid + '" class="produto-card-name" style="cursor:pointer">' + esc(p.nome) + '</label>'
+                        '<input type="checkbox" class="produto-check" id="' + uid + '">'
+                        + '<label for="' + uid + '" class="produto-row-label">'
+                        + '<span class="produto-card-icon"><i class="bx ' + icon + '"></i></span>'
+                        + '<span class="produto-card-name">' + esc(p.nome) + '</span>'
+                        + '</label>'
                         + '<div class="qty-stepper disabled">'
                         + '<button type="button" class="qty-btn qty-minus" aria-label="Diminuir">&#8722;</button>'
                         + '<input type="number" class="qty-input" value="' + MIN_QTY + '" min="' + MIN_QTY + '" aria-label="Quantidade de ' + esc(p.nome) + '">'
@@ -1218,6 +1239,7 @@
                         stepper.classList.toggle('disabled', !checked);
                         if (checked) enforceMin();
                     });
+
 
                     minus.addEventListener('click', function () {
                         var v = parseInt(input.value, 10) || MIN_QTY;
@@ -1279,8 +1301,9 @@
 
                 if (!row) return null;
 
-                var valorPorKm = row['valor'];
-                var valorTotal = parseFloat((valorPorKm * distKm).toFixed(2));
+                var valorPorKm  = row['valor'];
+                var distIdaVolta = distKm * 2;
+                var valorTotal  = parseFloat((valorPorKm * distIdaVolta).toFixed(2));
 
                 return {
                     outOfRange: false,
@@ -1370,13 +1393,9 @@
                 var freteAtivo = document.getElementById('calcularFrete').checked;
                 var enderecoEl = document.getElementById('endereco');
 
-                if (!empresa || !telefone) {
-                    alert('Por favor, preencha nome e telefone.'); return;
-                }
-
                 /* Coletar produtos selecionados (checkbox marcado) */
                 var selectedProducts = [];
-                document.querySelectorAll('#produtoGrid .produto-card').forEach(function (card) {
+                document.querySelectorAll('#produtoGrid .produto-row').forEach(function (card) {
                     var checkbox = card.querySelector('.produto-check');
                     if (!checkbox || !checkbox.checked) return;
                     var qty = parseInt(card.querySelector('.qty-input').value, 10) || 10;
@@ -1486,7 +1505,6 @@
                 });
 
                 if (freteAtivo && precoFrete) {
-                    var distFmt  = fmtDist(distanciaKm);
                     var freteFmt = precoFrete.isGratuito
                         ? '<span class="tag-gratuito">Gratuito</span>'
                         : fmt(precoFrete.valorTotal);
@@ -1497,7 +1515,7 @@
                         + '<div class="item-icon"><i class="bx bx-map-pin"></i></div>'
                         + '<div class="item-body">'
                         + '<div class="item-label">Frete</div>'
-                        + '<div class="item-desc">' + distFmt + '</div>'
+                        + '<div class="item-desc">' + esc(data.enderecoCompleto) + '</div>'
                         + '<div class="item-value">' + freteFmt + '</div>'
                         + '</div></div>';
                 }
@@ -1527,15 +1545,23 @@
                 }
                 waMsg += '\n\n*Total estimado: ' + fmt(totalGeral) + '*';
 
-                html += '<a href="https://wa.me/5515998179440?text=' + encodeURIComponent(waMsg) + '"'
+                html += '<div class="resultado-cta-btns">'
+                    + '<a href="https://wa.me/5515998179440?text=' + encodeURIComponent(waMsg) + '"'
                     + ' target="_blank" rel="noopener noreferrer"'
                     + ' class="btn btn-primary resultado-cta-btn">'
-                    + '<i class="bx bxl-whatsapp"></i> Confirmar pelo WhatsApp</a>';
+                    + '<i class="bx bxl-whatsapp"></i> Confirmar pelo WhatsApp</a>'
+                    + '<button type="button" class="btn btn-outline resultado-cta-btn" id="btnPdf">'
+                    + '<i class="bx bx-download"></i> Baixar PDF</button>'
+                    + '</div>';
 
                 document.getElementById('resultadoPlaceholder').style.display = 'none';
                 var cont = document.getElementById('resultadoConteudo');
                 cont.innerHTML = html;
                 cont.style.display = 'block';
+
+                document.getElementById('btnPdf').addEventListener('click', function () {
+                    abrirPDF(data, totalGeral);
+                });
 
                 if (window.innerWidth < 992) {
                     document.getElementById('resultadoCard')
