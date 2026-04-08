@@ -319,11 +319,26 @@
             flex: 1;
         }
 
+        /* Checkbox do produto */
+        .produto-check {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            cursor: pointer;
+            accent-color: var(--clr-primary);
+        }
+
         .qty-stepper {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
+            margin-left: auto;
+        }
+
+        .qty-stepper.disabled {
+            opacity: 0.3;
+            pointer-events: none;
         }
 
         .qty-btn {
@@ -1162,48 +1177,56 @@
                     return;
                 }
 
+                var MIN_QTY = 10;
+
                 grid.innerHTML = '';
                 products.forEach(function (p) {
                     var icon = getProductIcon(p.nome);
+                    var uid  = 'chk-' + p.codigo;
+
                     var card = document.createElement('div');
                     card.className = 'produto-card';
                     card.dataset.codigo = p.codigo;
                     card.dataset.nome   = p.nome;
                     card.innerHTML =
-                        '<div class="produto-card-icon"><i class="bx ' + icon + '"></i></div>'
-                        + '<div class="produto-card-name">' + esc(p.nome) + '</div>'
-                        + '<div class="qty-stepper">'
+                        '<input type="checkbox" class="produto-check" id="' + uid + '" aria-label="Selecionar ' + esc(p.nome) + '">'
+                        + '<label for="' + uid + '" class="produto-card-icon" style="cursor:pointer;margin:0">'
+                        + '<i class="bx ' + icon + '"></i></label>'
+                        + '<label for="' + uid + '" class="produto-card-name" style="cursor:pointer">' + esc(p.nome) + '</label>'
+                        + '<div class="qty-stepper disabled">'
                         + '<button type="button" class="qty-btn qty-minus" aria-label="Diminuir">&#8722;</button>'
-                        + '<input type="number" class="qty-input" value="0" min="0" aria-label="Quantidade de ' + esc(p.nome) + '">'
+                        + '<input type="number" class="qty-input" value="' + MIN_QTY + '" min="' + MIN_QTY + '" aria-label="Quantidade de ' + esc(p.nome) + '">'
                         + '<button type="button" class="qty-btn qty-plus" aria-label="Aumentar">+</button>'
                         + '</div>';
 
-                    var input   = card.querySelector('.qty-input');
-                    var minus   = card.querySelector('.qty-minus');
-                    var plus    = card.querySelector('.qty-plus');
-                    var MIN_QTY = 5;
+                    var checkbox = card.querySelector('.produto-check');
+                    var stepper  = card.querySelector('.qty-stepper');
+                    var input    = card.querySelector('.qty-input');
+                    var minus    = card.querySelector('.qty-minus');
+                    var plus     = card.querySelector('.qty-plus');
 
-                    function updateCard() {
-                        var v = parseInt(input.value, 10) || 0;
-                        if (v < 0) v = 0;
-                        if (v > 0 && v < MIN_QTY) v = MIN_QTY;
+                    function enforceMin() {
+                        var v = parseInt(input.value, 10) || MIN_QTY;
+                        if (v < MIN_QTY) v = MIN_QTY;
                         input.value = v;
-                        card.classList.toggle('selected', v > 0);
                     }
 
+                    checkbox.addEventListener('change', function () {
+                        var checked = checkbox.checked;
+                        card.classList.toggle('selected', checked);
+                        stepper.classList.toggle('disabled', !checked);
+                        if (checked) enforceMin();
+                    });
+
                     minus.addEventListener('click', function () {
-                        var v = parseInt(input.value, 10) || 0;
-                        if (v <= 0) return;
-                        input.value = (v <= MIN_QTY) ? 0 : v - 1;
-                        updateCard();
+                        var v = parseInt(input.value, 10) || MIN_QTY;
+                        if (v > MIN_QTY) { input.value = v - 1; }
                     });
                     plus.addEventListener('click', function () {
-                        var v = parseInt(input.value, 10) || 0;
-                        input.value = (v === 0) ? MIN_QTY : v + 1;
-                        updateCard();
+                        var v = parseInt(input.value, 10) || MIN_QTY;
+                        input.value = v + 1;
                     });
-                    input.addEventListener('input', updateCard);
-                    input.addEventListener('change', updateCard);
+                    input.addEventListener('change', enforceMin);
 
                     grid.appendChild(card);
                 });
@@ -1350,17 +1373,17 @@
                     alert('Por favor, preencha nome e telefone.'); return;
                 }
 
-                /* Coletar produtos selecionados */
+                /* Coletar produtos selecionados (checkbox marcado) */
                 var selectedProducts = [];
                 document.querySelectorAll('#produtoGrid .produto-card').forEach(function (card) {
-                    var qty = parseInt(card.querySelector('.qty-input').value, 10) || 0;
-                    if (qty > 0) {
-                        selectedProducts.push({
-                            codigo: card.dataset.codigo,
-                            nome:   card.dataset.nome,
-                            quantidade: qty
-                        });
-                    }
+                    var checkbox = card.querySelector('.produto-check');
+                    if (!checkbox || !checkbox.checked) return;
+                    var qty = parseInt(card.querySelector('.qty-input').value, 10) || 10;
+                    selectedProducts.push({
+                        codigo: card.dataset.codigo,
+                        nome:   card.dataset.nome,
+                        quantidade: qty
+                    });
                 });
 
                 if (!selectedProducts.length) {
