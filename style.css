@@ -403,12 +403,13 @@ header.scrolled .menu-toggle {
 }
 
 .hero-subtitle {
-    font-size:30px;
+    font-size: clamp(1.1rem, 3.5vw, 1.75rem);
     margin-bottom: 40px;
     color: var(--clr-dark);
     max-width: 800px;
     margin-inline: auto;
     font-weight: 500;
+    line-height: 1.5;
 }
 
 .hero-cta {
@@ -501,7 +502,7 @@ header.scrolled .menu-toggle {
    ========================================================================= */
 .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 30px;
     margin-top: 50px;
 }
@@ -613,6 +614,7 @@ header.scrolled .menu-toggle {
 
 .stats-container {
     display: flex;
+    flex-wrap: wrap;
     gap: 40px;
     margin-top: 40px;
 }
@@ -858,7 +860,7 @@ header.scrolled .menu-toggle {
    ========================================================================= */
 .produtos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 30px;
     margin-top: 50px;
 }
@@ -1019,6 +1021,49 @@ footer {
 }
 
 /* =========================================================================
+   Responsive Design — mobile-first additions
+   ========================================================================= */
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 16px;
+    }
+
+    .section-header h2 {
+        font-size: 1.6rem;
+    }
+
+    .stat-number {
+        font-size: 1.8rem;
+    }
+
+    .stat-label {
+        font-size: 0.95rem;
+    }
+
+    .feature-card {
+        padding: 28px 20px;
+    }
+
+    .cta-banner {
+        padding: 28px 18px;
+    }
+
+    .cta-content h3 {
+        font-size: 1.4rem;
+    }
+
+    .footer-links {
+        gap: 16px;
+    }
+
+    .btn {
+        padding: 12px 22px;
+        font-size: 0.9rem;
+    }
+}
+
+/* =========================================================================
    Responsive Design
    ========================================================================= */
 @media (max-width: 992px) {
@@ -1110,5 +1155,53 @@ footer {
 
     .scroll-indicator {
         display: none;
+    }
+
+    /* Tipografia mobile */
+    .section-header h2 {
+        font-size: 1.9rem;
+    }
+
+    .section-header {
+        margin-bottom: 40px;
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
+    }
+
+    .stats-container {
+        gap: 24px;
+    }
+
+    .cta-content h3 {
+        font-size: 1.6rem;
+    }
+
+    .pv-content h2 {
+        font-size: 1.9rem;
+    }
+
+    /* Grids forçam 1 coluna em mobile */
+    .features-grid,
+    .produtos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* CTA banner compacto */
+    .cta-banner {
+        padding: 36px 24px;
+        min-height: auto;
+    }
+
+    /* Feature cards sem efeito scale que quebra layout */
+    .feature-card.highlighted {
+        transform: none;
+    }
+
+    /* Botões hero empilham */
+    .hero-cta {
+        flex-direction: column;
+        align-items: center;
     }
 }

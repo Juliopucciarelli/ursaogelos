@@ -415,6 +415,59 @@
             padding: 20px;
         }
 
+        /* ---- Responsividade mobile da calculadora ---- */
+        @media (max-width: 768px) {
+            .produto-check {
+                width: 22px;
+                height: 22px;
+            }
+
+            .qty-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 1.2rem;
+            }
+
+            .qty-input {
+                width: 48px;
+                height: 36px;
+                font-size: 0.95rem;
+            }
+
+            .produto-card-name {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calc-card {
+                padding: 20px 14px;
+            }
+
+            .resultado-card {
+                padding: 20px 14px;
+            }
+
+            .calc-card-title {
+                font-size: 1.2rem;
+            }
+
+            .resultado-total .total-value {
+                font-size: 1.3rem;
+            }
+
+            .produto-row {
+                padding: 10px 10px;
+                gap: 8px;
+            }
+
+            .produto-card-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 0.95rem;
+            }
+        }
+
         .calc-form .input-box input,
         .calc-form .input-box select {
             padding: 13px 18px;
@@ -1197,7 +1250,7 @@
                     return;
                 }
 
-                var MIN_QTY = 10;
+                var MIN_QTY = 1;
 
                 grid.innerHTML = '';
                 products.forEach(function (p) {
