@@ -250,6 +250,139 @@
             margin-bottom: 6px;
         }
 
+        /* ---- Produto Grid ---- */
+        .form-label-standalone {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--clr-dark);
+            margin-bottom: 4px;
+        }
+
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--clr-gray);
+            margin-bottom: 12px;
+        }
+
+        .produto-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .produto-card {
+            border: 2px solid #E8EEF4;
+            border-radius: 14px;
+            padding: 14px 10px;
+            background: var(--clr-white);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .produto-card:hover {
+            border-color: var(--clr-primary);
+            box-shadow: 0 2px 8px rgba(0, 159, 227, 0.1);
+        }
+
+        .produto-card.selected {
+            border-color: var(--clr-primary);
+            background: rgba(0, 159, 227, 0.05);
+        }
+
+        .produto-card-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--clr-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 1.5rem;
+            color: var(--clr-primary);
+            transition: var(--transition);
+        }
+
+        .produto-card.selected .produto-card-icon {
+            background: var(--clr-primary);
+            color: var(--clr-white);
+        }
+
+        .produto-card-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--clr-dark);
+            line-height: 1.3;
+            margin-bottom: 10px;
+            min-height: 2em;
+        }
+
+        .qty-stepper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 7px;
+            background: transparent;
+            color: var(--clr-primary);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            padding: 0;
+            line-height: 1;
+        }
+
+        .qty-btn:hover {
+            background: var(--clr-primary);
+            border-color: var(--clr-primary);
+            color: white;
+        }
+
+        .qty-input {
+            width: 44px;
+            height: 28px;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 7px;
+            text-align: center;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--clr-dark);
+            padding: 0 4px;
+            outline: none;
+            transition: border-color 0.2s;
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+
+        .qty-input::-webkit-inner-spin-button,
+        .qty-input::-webkit-outer-spin-button {
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .qty-input:focus {
+            border-color: var(--clr-primary);
+        }
+
+        .produto-loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--clr-gray);
+            font-size: 0.9rem;
+            padding: 20px;
+        }
+
         .calc-form .input-box input,
         .calc-form .input-box select {
             padding: 13px 18px;
@@ -725,14 +858,7 @@
         <!-- ===== Hero ===== -->
         <section class="orcamento-hero">
             <div class="container">
-                <h1>Simule seu <span>Orçamento</span></h1>
-                <p class="hero-lead">Calcule o preço do pedido e o frete em segundos. Gelo filtrado de alta qualidade
-                    para revenda, eventos e empresas em Sorocaba-SP.</p>
-                <div class="hero-badges">
-                    <span class="hero-badge"><i class='bx bx-water'></i> Água Triplamente Filtrada</span>
-                    <span class="hero-badge"><i class='bx bx-check-shield'></i> Certificado Vigilância Sanitária</span>
-                    <span class="hero-badge"><i class='bx bxl-whatsapp'></i> Resposta em até 2h</span>
-                </div>
+                <h1><span>Orçamento</span></h1>
             </div>
         </section>
 
@@ -769,19 +895,10 @@
                             </div>
 
                             <div class="form-group">
-                                <div class="input-box">
-                                    <label for="produto">Produto *</label>
-                                    <select id="produto" name="produto" required>
-                                        <option value="" disabled selected>Carregando produtos…</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="input-box">
-                                    <label for="quantidade">Quantidade (sacos) *</label>
-                                    <input type="number" id="quantidade" name="quantidade" min="1"
-                                        placeholder="Ex: 50" required>
+                                <label class="form-label-standalone">Produtos *</label>
+                                <p class="form-hint">Informe a quantidade de cada produto desejado.</p>
+                                <div id="produtoGrid" class="produto-grid">
+                                    <div class="produto-loading">Carregando produtos…</div>
                                 </div>
                             </div>
 
@@ -952,7 +1069,7 @@
                 }
 
                 loadSheetsData().then(function () {
-                    populateProducts();
+                    renderProductGrid();
                 });
 
                 setupFreteToggle();
@@ -1015,9 +1132,21 @@
             }
 
             /* ----------------------------------------------------------
-               PRODUTOS — Dropdown
+               PRODUTOS — Grid de Cards
             ---------------------------------------------------------- */
-            function populateProducts() {
+            function getProductIcon(nome) {
+                var n = (nome || '').toLowerCase();
+                if (n.includes('cubo'))                                  return 'bx-cube-alt';
+                if (n.includes('barra'))                                 return 'bx-minus';
+                if (n.includes('triturad') || n.includes('picad') ||
+                    n.includes('moíd') || n.includes('moid'))           return 'bx-water';
+                if (n.includes('balão') || n.includes('balao'))         return 'bx-circle';
+                if (n.includes('saco'))                                  return 'bx-package';
+                if (n.includes('dry') || n.includes('seco'))            return 'bx-wind';
+                return 'bxs-droplet-half';
+            }
+
+            function renderProductGrid() {
                 var seen = {};
                 var products = gelosData.filter(function (row) {
                     var code = row['código'];
@@ -1028,19 +1157,52 @@
                     return { codigo: row['código'], nome: row['produtos'] };
                 });
 
-                var sel = document.getElementById('produto');
+                var grid = document.getElementById('produtoGrid');
 
                 if (!products.length) {
-                    sel.innerHTML = '<option value="">Nenhum produto disponível</option>';
+                    grid.innerHTML = '<div class="produto-loading">Nenhum produto disponível</div>';
                     return;
                 }
 
-                sel.innerHTML = '<option value="" disabled selected>Selecione um produto</option>';
+                grid.innerHTML = '';
                 products.forEach(function (p) {
-                    var opt = document.createElement('option');
-                    opt.value       = p.codigo;
-                    opt.textContent = p.nome;
-                    sel.appendChild(opt);
+                    var icon = getProductIcon(p.nome);
+                    var card = document.createElement('div');
+                    card.className = 'produto-card';
+                    card.dataset.codigo = p.codigo;
+                    card.dataset.nome   = p.nome;
+                    card.innerHTML =
+                        '<div class="produto-card-icon"><i class="bx ' + icon + '"></i></div>'
+                        + '<div class="produto-card-name">' + esc(p.nome) + '</div>'
+                        + '<div class="qty-stepper">'
+                        + '<button type="button" class="qty-btn qty-minus" aria-label="Diminuir">&#8722;</button>'
+                        + '<input type="number" class="qty-input" value="0" min="0" aria-label="Quantidade de ' + esc(p.nome) + '">'
+                        + '<button type="button" class="qty-btn qty-plus" aria-label="Aumentar">+</button>'
+                        + '</div>';
+
+                    var input = card.querySelector('.qty-input');
+                    var minus = card.querySelector('.qty-minus');
+                    var plus  = card.querySelector('.qty-plus');
+
+                    function updateCard() {
+                        var v = parseInt(input.value, 10) || 0;
+                        if (v < 0) { v = 0; input.value = 0; }
+                        card.classList.toggle('selected', v > 0);
+                    }
+
+                    minus.addEventListener('click', function () {
+                        var v = parseInt(input.value, 10) || 0;
+                        if (v > 0) { input.value = v - 1; updateCard(); }
+                    });
+                    plus.addEventListener('click', function () {
+                        var v = parseInt(input.value, 10) || 0;
+                        input.value = v + 1;
+                        updateCard();
+                    });
+                    input.addEventListener('input', updateCard);
+                    input.addEventListener('change', updateCard);
+
+                    grid.appendChild(card);
                 });
             }
 
@@ -1176,25 +1338,32 @@
             function handleSubmit(e) {
                 e.preventDefault();
 
-                var empresa   = document.getElementById('empresa').value.trim();
-                var telefone  = document.getElementById('telefone').value.trim();
-                var prodSel   = document.getElementById('produto');
-                var codigo    = prodSel.value;
-                var nomeProd  = prodSel.options[prodSel.selectedIndex] ? prodSel.options[prodSel.selectedIndex].textContent : '';
-                var quantidade = parseInt(document.getElementById('quantidade').value, 10);
+                var empresa    = document.getElementById('empresa').value.trim();
+                var telefone   = document.getElementById('telefone').value.trim();
                 var freteAtivo = document.getElementById('calcularFrete').checked;
                 var enderecoEl = document.getElementById('endereco');
 
-                /* Validação */
                 if (!empresa || !telefone) {
                     alert('Por favor, preencha nome e telefone.'); return;
                 }
-                if (!codigo) {
-                    alert('Por favor, selecione um produto.'); return;
+
+                /* Coletar produtos selecionados */
+                var selectedProducts = [];
+                document.querySelectorAll('#produtoGrid .produto-card').forEach(function (card) {
+                    var qty = parseInt(card.querySelector('.qty-input').value, 10) || 0;
+                    if (qty > 0) {
+                        selectedProducts.push({
+                            codigo: card.dataset.codigo,
+                            nome:   card.dataset.nome,
+                            quantidade: qty
+                        });
+                    }
+                });
+
+                if (!selectedProducts.length) {
+                    alert('Por favor, selecione pelo menos um produto e informe a quantidade.'); return;
                 }
-                if (!quantidade || quantidade < 1) {
-                    alert('Por favor, informe uma quantidade válida.'); return;
-                }
+
                 if (freteAtivo && !enderecoEl.value.trim()) {
                     alert('Por favor, informe o endereço de entrega.');
                     enderecoEl.focus(); return;
@@ -1202,7 +1371,7 @@
 
                 setLoading(true);
 
-                var promise = Promise.resolve();
+                var promise = Promise.resolve(null);
 
                 if (freteAtivo) {
                     if (!window._mapsReady) {
@@ -1214,20 +1383,26 @@
                 }
 
                 promise.then(function (distKm) {
-                    /* Calcular produto */
-                    var precoProd = calcularProduto(codigo, quantidade);
-                    if (!precoProd || precoProd.outOfRange) {
-                        showError('A quantidade informada supera nossa capacidade padrão. Por favor, entre em contato para um orçamento especial.');
-                        return;
+                    /* Calcular preço de cada produto */
+                    var produtosCalculados = [];
+                    for (var i = 0; i < selectedProducts.length; i++) {
+                        var p     = selectedProducts[i];
+                        var preco = calcularProduto(p.codigo, p.quantidade);
+                        if (!preco || preco.outOfRange) {
+                            showError('A quantidade de "' + p.nome + '" supera nossa capacidade padrão. Entre em contato para orçamento especial.');
+                            return;
+                        }
+                        produtosCalculados.push({ codigo: p.codigo, nome: p.nome, quantidade: p.quantidade, preco: preco });
                     }
 
-                    /* Calcular frete */
+                    /* Calcular frete com quantidade total */
+                    var totalQtd = selectedProducts.reduce(function (s, p) { return s + p.quantidade; }, 0);
                     var precoFrete = null;
                     var enderecoCompleto = null;
 
                     if (freteAtivo) {
                         enderecoCompleto = enderecoEl.value.trim();
-                        precoFrete = calcularFrete(quantidade, distKm);
+                        precoFrete = calcularFrete(totalQtd, distKm);
                         if (!precoFrete || precoFrete.outOfRange) {
                             showError('Endereço fora da área de cobertura ou quantidade acima do limite. Entre em contato para orçamento especial.');
                             return;
@@ -1235,16 +1410,13 @@
                     }
 
                     var resultData = {
-                        empresa: empresa,
-                        telefone: telefone,
-                        nomeProduto: nomeProd,
-                        codigo: codigo,
-                        quantidade: quantidade,
-                        precoProd: precoProd,
-                        freteAtivo: freteAtivo,
-                        distanciaKm: distKm || null,
+                        empresa:          empresa,
+                        telefone:         telefone,
+                        produtos:         produtosCalculados,
+                        freteAtivo:       freteAtivo,
+                        distanciaKm:      distKm,
                         enderecoCompleto: enderecoCompleto,
-                        precoFrete: precoFrete
+                        precoFrete:       precoFrete
                     };
 
                     displayResult(resultData);
@@ -1262,37 +1434,40 @@
                EXIBIÇÃO DO RESULTADO
             ---------------------------------------------------------- */
             function displayResult(data) {
-                var nomeProd       = data.nomeProduto;
-                var quantidade     = data.quantidade;
-                var precoProd      = data.precoProd;
-                var freteAtivo     = data.freteAtivo;
-                var distanciaKm    = data.distanciaKm;
-                var precoFrete     = data.precoFrete;
+                var produtos    = data.produtos;
+                var freteAtivo  = data.freteAtivo;
+                var distanciaKm = data.distanciaKm;
+                var precoFrete  = data.precoFrete;
 
-                var unitFmt       = fmt(precoProd.valorUnitario);
-                var totalProdFmt  = fmt(precoProd.valorTotal);
-                var totalGeral    = precoProd.valorTotal;
+                var totalGeral = 0;
+                var html = '';
 
-                var html = '<div class="resultado-item">'
-                    + '<div class="item-icon"><i class=\'bx bx-cube-alt\'></i></div>'
-                    + '<div class="item-body">'
-                    + '<div class="item-label">Produto</div>'
-                    + '<div class="item-desc">' + esc(nomeProd) + '<br>'
-                    + quantidade + ' ' + (quantidade === 1 ? 'saco' : 'sacos') + ' × ' + unitFmt + '/saco'
-                    + '</div>'
-                    + '<div class="item-value">' + totalProdFmt + '</div>'
-                    + '</div></div>';
+                produtos.forEach(function (p) {
+                    var unitFmt  = fmt(p.preco.valorUnitario);
+                    var totalFmt = fmt(p.preco.valorTotal);
+                    totalGeral  += p.preco.valorTotal;
+
+                    html += '<div class="resultado-item">'
+                        + '<div class="item-icon"><i class="bx ' + getProductIcon(p.nome) + '"></i></div>'
+                        + '<div class="item-body">'
+                        + '<div class="item-label">Produto</div>'
+                        + '<div class="item-desc">' + esc(p.nome) + '<br>'
+                        + p.quantidade + ' ' + (p.quantidade === 1 ? 'saco' : 'sacos') + ' × ' + unitFmt + '/saco'
+                        + '</div>'
+                        + '<div class="item-value">' + totalFmt + '</div>'
+                        + '</div></div>';
+                });
 
                 if (freteAtivo && precoFrete) {
-                    var distFmt   = fmtDist(distanciaKm);
-                    var freteFmt  = precoFrete.isGratuito
+                    var distFmt  = fmtDist(distanciaKm);
+                    var freteFmt = precoFrete.isGratuito
                         ? '<span class="tag-gratuito">Gratuito</span>'
                         : fmt(precoFrete.valorTotal);
 
                     if (!precoFrete.isGratuito) totalGeral += precoFrete.valorTotal;
 
                     html += '<div class="resultado-item">'
-                        + '<div class="item-icon"><i class=\'bx bx-map-pin\'></i></div>'
+                        + '<div class="item-icon"><i class="bx bx-map-pin"></i></div>'
                         + '<div class="item-body">'
                         + '<div class="item-label">Frete</div>'
                         + '<div class="item-desc">' + distFmt + '</div>'
@@ -1311,14 +1486,13 @@
                 html += '<a href="https://wa.me/5515998179440?text=Ol%C3%A1%2C%20fiz%20uma%20simula%C3%A7%C3%A3o%20no%20site%20e%20gostaria%20de%20confirmar%20o%20pedido."'
                     + ' target="_blank" rel="noopener noreferrer"'
                     + ' class="btn btn-primary resultado-cta-btn">'
-                    + '<i class=\'bx bxl-whatsapp\'></i> Confirmar pelo WhatsApp</a>';
+                    + '<i class="bx bxl-whatsapp"></i> Confirmar pelo WhatsApp</a>';
 
                 document.getElementById('resultadoPlaceholder').style.display = 'none';
                 var cont = document.getElementById('resultadoConteudo');
                 cont.innerHTML = html;
                 cont.style.display = 'block';
 
-                /* Em mobile, scroll até o resultado */
                 if (window.innerWidth < 992) {
                     document.getElementById('resultadoCard')
                         .scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1368,26 +1542,30 @@
                     return Promise.resolve(false);
                 }
 
-                var unitFmt = fmt(data.precoProd.valorUnitario);
-                var prodFmt = fmt(data.precoProd.valorTotal);
-                var totalGeral = data.precoProd.valorTotal;
+                var totalGeral = 0;
+                var produtosTexto = data.produtos.map(function (p) {
+                    var unitFmt  = fmt(p.preco.valorUnitario);
+                    var totalFmt = fmt(p.preco.valorTotal);
+                    totalGeral  += p.preco.valorTotal;
+                    return p.nome + ': ' + p.quantidade + ' saco(s) × ' + unitFmt + ' = ' + totalFmt;
+                }).join('\n');
 
                 var freteTexto = 'Não solicitado';
                 if (data.freteAtivo && data.precoFrete) {
-                    var distFmt = fmtDist(data.distanciaKm);
+                    var distFmt  = fmtDist(data.distanciaKm);
                     var freteFmt = data.precoFrete.isGratuito ? 'Gratuito' : fmt(data.precoFrete.valorTotal);
-                    freteTexto = distFmt + ': ' + freteFmt;
+                    freteTexto   = distFmt + ': ' + freteFmt;
                     if (!data.precoFrete.isGratuito) totalGeral += data.precoFrete.valorTotal;
                 }
 
                 var params = {
-                    empresa:    data.empresa,
-                    telefone:   data.telefone,
-                    produto:    data.nomeProduto + ' — ' + data.quantidade + ' saco(s) × ' + unitFmt + '/saco: ' + prodFmt,
-                    frete:      freteTexto,
-                    endereco:   data.enderecoCompleto || '(Retirada / Não informado)',
-                    total:      fmt(totalGeral),
-                    data_hora:  new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+                    empresa:   data.empresa,
+                    telefone:  data.telefone,
+                    produto:   produtosTexto,
+                    frete:     freteTexto,
+                    endereco:  data.enderecoCompleto || '(Retirada / Não informado)',
+                    total:     fmt(totalGeral),
+                    data_hora: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
                 };
 
                 return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
