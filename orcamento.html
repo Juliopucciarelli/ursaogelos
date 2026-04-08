@@ -266,18 +266,20 @@
         }
 
         .produto-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .produto-card {
             border: 2px solid #E8EEF4;
-            border-radius: 14px;
-            padding: 14px 10px;
+            border-radius: 12px;
+            padding: 11px 14px;
             background: var(--clr-white);
             transition: var(--transition);
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .produto-card:hover {
@@ -291,15 +293,15 @@
         }
 
         .produto-card-icon {
-            width: 48px;
-            height: 48px;
+            width: 42px;
+            height: 42px;
             background: var(--clr-light);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 8px;
-            font-size: 1.5rem;
+            flex-shrink: 0;
+            font-size: 1.3rem;
             color: var(--clr-primary);
             transition: var(--transition);
         }
@@ -310,12 +312,11 @@
         }
 
         .produto-card-name {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--clr-dark);
             line-height: 1.3;
-            margin-bottom: 10px;
-            min-height: 2em;
+            flex: 1;
         }
 
         .qty-stepper {
@@ -858,17 +859,14 @@
         <!-- ===== Hero ===== -->
         <section class="orcamento-hero">
             <div class="container">
-                <h1><span>Orçamento</span></h1>
+                <h1><span>Orçamento de Gelo</span></h1>
             </div>
         </section>
 
         <!-- ===== Calculator Section ===== -->
         <section class="calculator-section" id="calculadora">
             <div class="container">
-                <div class="section-header text-center">
-                    <span class="subtitle">Calculadora de Preços</span>
-                </div>
-
+                
                 <div class="calc-layout">
 
                     <!-- Form Card -->
@@ -1180,23 +1178,28 @@
                         + '<button type="button" class="qty-btn qty-plus" aria-label="Aumentar">+</button>'
                         + '</div>';
 
-                    var input = card.querySelector('.qty-input');
-                    var minus = card.querySelector('.qty-minus');
-                    var plus  = card.querySelector('.qty-plus');
+                    var input   = card.querySelector('.qty-input');
+                    var minus   = card.querySelector('.qty-minus');
+                    var plus    = card.querySelector('.qty-plus');
+                    var MIN_QTY = 5;
 
                     function updateCard() {
                         var v = parseInt(input.value, 10) || 0;
-                        if (v < 0) { v = 0; input.value = 0; }
+                        if (v < 0) v = 0;
+                        if (v > 0 && v < MIN_QTY) v = MIN_QTY;
+                        input.value = v;
                         card.classList.toggle('selected', v > 0);
                     }
 
                     minus.addEventListener('click', function () {
                         var v = parseInt(input.value, 10) || 0;
-                        if (v > 0) { input.value = v - 1; updateCard(); }
+                        if (v <= 0) return;
+                        input.value = (v <= MIN_QTY) ? 0 : v - 1;
+                        updateCard();
                     });
                     plus.addEventListener('click', function () {
                         var v = parseInt(input.value, 10) || 0;
-                        input.value = v + 1;
+                        input.value = (v === 0) ? MIN_QTY : v + 1;
                         updateCard();
                     });
                     input.addEventListener('input', updateCard);
@@ -1483,7 +1486,24 @@
                 html += '<p class="resultado-aviso">* Valores estimados sujeitos a confirmação. '
                     + 'Nossa equipe entrará em contato em breve.</p>';
 
-                html += '<a href="https://wa.me/5515998179440?text=Ol%C3%A1%2C%20fiz%20uma%20simula%C3%A7%C3%A3o%20no%20site%20e%20gostaria%20de%20confirmar%20o%20pedido."'
+                /* Montar mensagem do WhatsApp com detalhes do pedido */
+                var waMsg = 'Olá! Fiz uma simulação no site e gostaria de confirmar o pedido:\n\n';
+                waMsg += '*Produtos:*\n';
+                data.produtos.forEach(function (p) {
+                    waMsg += '• ' + p.nome + ': ' + p.quantidade + ' saco(s) — ' + fmt(p.preco.valorTotal) + '\n';
+                });
+                if (freteAtivo && precoFrete) {
+                    var waFrete = precoFrete.isGratuito ? 'Gratuito' : fmt(precoFrete.valorTotal);
+                    waMsg += '\n*Frete:* ' + waFrete;
+                    if (data.enderecoCompleto) {
+                        waMsg += '\n*Endereço de entrega:* ' + data.enderecoCompleto;
+                    }
+                } else {
+                    waMsg += '\n*Frete:* Retirada na fábrica';
+                }
+                waMsg += '\n\n*Total estimado: ' + fmt(totalGeral) + '*';
+
+                html += '<a href="https://wa.me/5515998179440?text=' + encodeURIComponent(waMsg) + '"'
                     + ' target="_blank" rel="noopener noreferrer"'
                     + ' class="btn btn-primary resultado-cta-btn">'
                     + '<i class="bx bxl-whatsapp"></i> Confirmar pelo WhatsApp</a>';
