@@ -1335,9 +1335,12 @@
             /* ----------------------------------------------------------
                CÁLCULO — Frete (teto de distância × teto de quantidade)
             ---------------------------------------------------------- */
-            function calcularFrete(quantidade, distKm) {
+            function calcularFrete(quantidade, distKm, pedagioIda) {
                 if (!freteData.length) return null;
 
+                // 1) distKm já é a distância de ida (calculada pelo Maps)
+
+                // 2) Pega o valor de referência (R$/km) pela faixa de distância e quantidade
                 var distTiers = unique(freteData.map(function (r) { return r['distancia']; }))
                     .sort(function (a, b) { return a - b; });
                 var qtyTiers  = unique(freteData.map(function (r) { return r['quantidade']; }))
@@ -1354,16 +1357,26 @@
 
                 if (!row) return null;
 
-                var valorPorKm  = row['valor'];
-                var distIdaVolta = distKm * 2;
-                var valorTotal  = parseFloat((valorPorKm * distIdaVolta).toFixed(2));
+                var valorPorKm = row['valor'];
+
+                // 3) Multiplica valor de referência pela distância (ida)
+                var valorIda = valorPorKm * distKm;
+
+                // 4) Multiplica por 2 (ida e volta)
+                var valorFrete = parseFloat((valorIda * 2).toFixed(2));
+
+                // 5) Soma pedágios (ida e volta)
+                var pedagioTotal = parseFloat(((pedagioIda || 0) * 2).toFixed(2));
+                var valorTotal   = parseFloat((valorFrete + pedagioTotal).toFixed(2));
 
                 return {
-                    outOfRange: false,
-                    valorPorKm: valorPorKm,
-                    valorTotal: valorTotal,
-                    distanciaKm: distKm,
-                    isGratuito: valorTotal === 0
+                    outOfRange:    false,
+                    valorPorKm:    valorPorKm,
+                    valorFrete:    valorFrete,
+                    pedagioTotal:  pedagioTotal,
+                    valorTotal:    valorTotal,
+                    distanciaKm:   distKm,
+                    isGratuito:    valorTotal === 0
                 };
             }
 
@@ -1518,15 +1531,11 @@
 
                     if (freteAtivo) {
                         enderecoCompleto = enderecoEl.value.trim();
-                        precoFrete = calcularFrete(totalQtd, distKm);
+                        precoFrete = calcularFrete(totalQtd, distKm, pedagioIda);
                         if (!precoFrete || precoFrete.outOfRange) {
                             showError('Endereço fora da área de cobertura ou quantidade acima do limite. Entre em contato para orçamento especial.');
                             return;
                         }
-                        /* Pedágio ida e volta */
-                        precoFrete.pedagioTotal = parseFloat((pedagioIda * 2).toFixed(2));
-                        precoFrete.valorTotal   = parseFloat((precoFrete.valorTotal + precoFrete.pedagioTotal).toFixed(2));
-                        precoFrete.isGratuito   = precoFrete.valorTotal === 0;
                     }
 
                     var resultData = {
