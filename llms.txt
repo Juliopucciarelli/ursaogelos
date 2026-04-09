@@ -1,0 +1,10 @@
+# Ursão Gelos — llms.txt
+# https://ursaogelos.com.br
+
+## Páginas autorizadas para indexação por IAs
+- https://ursaogelos.com.br/
+- https://ursaogelos.com.br/orcamento.html
+
+## Páginas bloqueadas para IAs generativas
+- https://ursaogelos.com.br/solicitargelo.html
+- https://ursaogelos.com.br/solicitargelo
