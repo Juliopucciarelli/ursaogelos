@@ -1365,18 +1365,19 @@
                 // 4) Multiplica por 2 (ida e volta)
                 var valorFrete = parseFloat((valorIda * 2).toFixed(2));
 
-                // 5) Soma pedágios (ida e volta)
-                var pedagioTotal = parseFloat(((pedagioIda || 0) * 2).toFixed(2));
+                // 5) Soma pedágios (ida e volta) — ignorado quando frete é gratuito
+                var isGratuito   = valorFrete === 0;
+                var pedagioTotal = isGratuito ? 0 : parseFloat(((pedagioIda || 0) * 2).toFixed(2));
                 var valorTotal   = parseFloat((valorFrete + pedagioTotal).toFixed(2));
 
                 return {
-                    outOfRange:    false,
-                    valorPorKm:    valorPorKm,
-                    valorFrete:    valorFrete,
-                    pedagioTotal:  pedagioTotal,
-                    valorTotal:    valorTotal,
-                    distanciaKm:   distKm,
-                    isGratuito:    valorTotal === 0
+                    outOfRange:   false,
+                    valorPorKm:   valorPorKm,
+                    valorFrete:   valorFrete,
+                    pedagioTotal: pedagioTotal,
+                    valorTotal:   valorTotal,
+                    distanciaKm:  distKm,
+                    isGratuito:   isGratuito
                 };
             }
 
