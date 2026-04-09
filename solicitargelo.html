@@ -1382,29 +1382,48 @@
             }
 
             /* ----------------------------------------------------------
-               GOOGLE MAPS — Distance Matrix
+               GOOGLE MAPS — Routes API (distância + pedágios)
             ---------------------------------------------------------- */
-            function getDistanceKm(destination) {
-                return new Promise(function (resolve, reject) {
-                    var service = new google.maps.DistanceMatrixService();
-                    service.getDistanceMatrix({
-                        origins: [ORIGEM_FABRICA],
-                        destinations: [destination],
-                        travelMode: google.maps.TravelMode.DRIVING,
-                        unitSystem: google.maps.UnitSystem.METRIC,
-                        region: 'BR'
-                    }, function (response, status) {
-                        if (status !== 'OK') {
-                            reject(new Error('Não foi possível calcular a distância (' + status + ')'));
-                            return;
-                        }
-                        var el = response.rows[0].elements[0];
-                        if (el.status !== 'OK') {
-                            reject(new Error('Endereço não encontrado. Verifique e tente novamente.'));
-                            return;
-                        }
-                        resolve(el.distance.value / 1000);
-                    });
+            var MAPS_API_KEY = 'AIzaSyAN0Acj30PlztaGf1WtmYXH2qQTdshLsrg';
+
+            function getRouteData(destination) {
+                var body = {
+                    origin:      { address: ORIGEM_FABRICA },
+                    destination: { address: destination },
+                    travelMode:  'DRIVE',
+                    extraComputations: ['TOLLS']
+                };
+
+                return fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type':      'application/json',
+                        'X-Goog-Api-Key':    MAPS_API_KEY,
+                        'X-Goog-FieldMask':  'routes.distanceMeters,routes.travelAdvisory.tollInfo'
+                    },
+                    body: JSON.stringify(body)
+                })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (!data.routes || !data.routes.length) {
+                        throw new Error('Endereço não encontrado. Verifique e tente novamente.');
+                    }
+                    var route      = data.routes[0];
+                    var distanceKm = route.distanceMeters / 1000;
+
+                    var pedagioIda = 0;
+                    var tollInfo   = route.travelAdvisory && route.travelAdvisory.tollInfo;
+                    if (tollInfo && tollInfo.estimatedPrice && tollInfo.estimatedPrice.length) {
+                        tollInfo.estimatedPrice.forEach(function (price) {
+                            if (price.currencyCode === 'BRL') {
+                                var units = parseFloat(price.units || 0);
+                                var nanos = parseFloat(price.nanos  || 0) / 1e9;
+                                pedagioIda += units + nanos;
+                            }
+                        });
+                    }
+
+                    return { distanceKm: distanceKm, pedagioIda: pedagioIda };
                 });
             }
 
@@ -1473,15 +1492,13 @@
                 var promise = Promise.resolve(null);
 
                 if (freteAtivo) {
-                    if (!window._mapsReady) {
-                        setLoading(false);
-                        showError('O Google Maps ainda está carregando. Aguarde um momento e tente novamente.');
-                        return;
-                    }
-                    promise = getDistanceKm(enderecoEl.value.trim());
+                    promise = getRouteData(enderecoEl.value.trim());
                 }
 
-                promise.then(function (distKm) {
+                promise.then(function (routeData) {
+                    var distKm    = routeData ? routeData.distanceKm : null;
+                    var pedagioIda = routeData ? routeData.pedagioIda : 0;
+
                     /* Calcular preço de cada produto */
                     var produtosCalculados = [];
                     for (var i = 0; i < selectedProducts.length; i++) {
@@ -1506,6 +1523,10 @@
                             showError('Endereço fora da área de cobertura ou quantidade acima do limite. Entre em contato para orçamento especial.');
                             return;
                         }
+                        /* Pedágio ida e volta */
+                        precoFrete.pedagioTotal = parseFloat((pedagioIda * 2).toFixed(2));
+                        precoFrete.valorTotal   = parseFloat((precoFrete.valorTotal + precoFrete.pedagioTotal).toFixed(2));
+                        precoFrete.isGratuito   = precoFrete.valorTotal === 0;
                     }
 
                     var resultData = {
@@ -1558,11 +1579,13 @@
                 });
 
                 if (freteAtivo && precoFrete) {
-                    var freteFmt = precoFrete.isGratuito
+                    /* Valor de frete sem pedágio para exibição separada */
+                    var valorFreteBase = precoFrete.valorTotal - (precoFrete.pedagioTotal || 0);
+                    var freteFmt = valorFreteBase === 0
                         ? '<span class="tag-gratuito">Gratuito</span>'
-                        : fmt(precoFrete.valorTotal);
+                        : fmt(valorFreteBase);
 
-                    if (!precoFrete.isGratuito) totalGeral += precoFrete.valorTotal;
+                    totalGeral += precoFrete.valorTotal;
 
                     html += '<div class="resultado-item">'
                         + '<div class="item-icon"><i class="bx bx-map-pin"></i></div>'
@@ -1571,6 +1594,15 @@
                         + '<div class="item-desc">' + esc(data.enderecoCompleto) + '</div>'
                         + '<div class="item-value">' + freteFmt + '</div>'
                         + '</div></div>';
+
+                    if (precoFrete.pedagioTotal > 0) {
+                        html += '<div class="resultado-item">'
+                            + '<div class="item-icon"><i class="bx bx-coin-stack"></i></div>'
+                            + '<div class="item-body">'
+                            + '<div class="item-label">Pedágios (ida e volta)</div>'
+                            + '<div class="item-value">' + fmt(precoFrete.pedagioTotal) + '</div>'
+                            + '</div></div>';
+                    }
                 }
 
                 html += '<div class="resultado-total">'
@@ -1675,10 +1707,13 @@
 
                 var freteTexto = 'Não solicitado';
                 if (data.freteAtivo && data.precoFrete) {
-                    var distFmt  = fmtDist(data.distanciaKm);
-                    var freteFmt = data.precoFrete.isGratuito ? 'Gratuito' : fmt(data.precoFrete.valorTotal);
-                    freteTexto   = distFmt + ': ' + freteFmt;
-                    if (!data.precoFrete.isGratuito) totalGeral += data.precoFrete.valorTotal;
+                    var valorFreteBase = data.precoFrete.valorTotal - (data.precoFrete.pedagioTotal || 0);
+                    var freteFmt = valorFreteBase === 0 ? 'Gratuito' : fmt(valorFreteBase);
+                    freteTexto = fmtDist(data.distanciaKm) + ': ' + freteFmt;
+                    if (data.precoFrete.pedagioTotal > 0) {
+                        freteTexto += ' + Pedágios (ida/volta): ' + fmt(data.precoFrete.pedagioTotal);
+                    }
+                    totalGeral += data.precoFrete.valorTotal;
                 }
 
                 var params = {
