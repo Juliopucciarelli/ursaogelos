@@ -492,7 +492,7 @@
             right: 8px;
             top: 50%;
             transform: translateY(-50%);
-            width: 36px;
+            width: 160px;
             height: 36px;
             border: none;
             border-radius: 8px;
@@ -502,7 +502,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 14px;
             transition: var(--transition);
             padding: 0;
         }
@@ -1062,7 +1062,7 @@
                                         <div class="cep-input-container">
                                             <input type="text" id="cep" name="cep" placeholder="Ex: 18000-000 (opcional)" maxlength="9">
                                             <button type="button" id="buscarCep" class="btn-cep-search" title="Buscar endereço">
-                                                <i class='bx bx-search'></i>
+                                                <i class='bx bx-search' style="margin-right:8px;"></i> Buscar Endereço
                                             </button>
                                         </div>
                                         <p id="cepStatus" class="form-hint" style="display: none;"></p>
@@ -1664,7 +1664,7 @@
                         .finally(function () {
                             // Reabilita o botão
                             buscarBtn.disabled = false;
-                            buscarBtn.innerHTML = '<i class="bx bx-search"></i>';
+                            buscarBtn.innerHTML = '<i class="bx bx-search" style="margin-right:8px;"></i> Buscar Endereço';
                         });
                 }
 
