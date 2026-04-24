@@ -475,6 +475,53 @@
             font-size: 0.95rem;
         }
 
+        /* CEP Input with Button */
+        .cep-input-box .cep-input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .cep-input-box .cep-input-container input {
+            flex: 1;
+            padding-right: 50px; /* Espaço para o botão */
+        }
+
+        .btn-cep-search {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 8px;
+            background: var(--clr-primary);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: var(--transition);
+            padding: 0;
+        }
+
+        .btn-cep-search:hover {
+            background: var(--clr-primary-dark);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .btn-cep-search:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .btn-cep-search:disabled {
+            background: var(--clr-gray);
+            cursor: not-allowed;
+            transform: translateY(-50%);
+        }
+
         /* Toggle switch (Frete) */
         .toggle-row {
             display: flex;
@@ -1006,12 +1053,45 @@
                                 </div>
                             </div>
 
-                            <!-- Endereço (visível quando frete ativo) -->
-                            <div id="freteGroup" class="form-group">
-                                <div class="input-box">
-                                    <label for="endereco">Endereço de Entrega *</label>
-                                    <input type="text" id="endereco" name="endereco"
-                                        placeholder="Digite o endereço completo de entrega…" autocomplete="off">
+                            <!-- Frete Group (visível quando frete ativo) -->
+                            <div id="freteGroup">
+                                <!-- CEP -->
+                                <div class="form-group">
+                                    <div class="input-box cep-input-box">
+                                        <label for="cep">CEP</label>
+                                        <div class="cep-input-container">
+                                            <input type="text" id="cep" name="cep" placeholder="Ex: 18000-000 (opcional)" maxlength="9">
+                                            <button type="button" id="buscarCep" class="btn-cep-search" title="Buscar endereço">
+                                                <i class='bx bx-search'></i>
+                                            </button>
+                                        </div>
+                                        <p id="cepStatus" class="form-hint" style="display: none;"></p>
+                                    </div>
+                                </div>
+
+                                <!-- Endereço (com autocomplete) -->
+                                <div class="form-group">
+                                    <div class="input-box">
+                                        <label for="endereco">Endereço de Entrega *</label>
+                                        <input type="text" id="endereco" name="endereco"
+                                            placeholder="Digite o endereço completo ou use o CEP acima…" autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <!-- Número -->
+                                <div class="form-group">
+                                    <div class="input-box">
+                                        <label for="numero">Número</label>
+                                        <input type="text" id="numero" name="numero" placeholder="Ex: 123 (opcional)">
+                                    </div>
+                                </div>
+
+                                <!-- Complemento -->
+                                <div class="form-group">
+                                    <div class="input-box">
+                                        <label for="complemento">Complemento</label>
+                                        <input type="text" id="complemento" name="complemento" placeholder="Ex: Apto 45, Sala 10 (opcional)">
+                                    </div>
                                 </div>
                             </div>
 
@@ -1097,6 +1177,9 @@
         </div>
     </footer>
 
+    <!-- Script principal do site (header, menu mobile, ano) -->
+    <script src="script.js"></script>
+
     <!-- Google Maps: declarar callback antes do script async -->
     <script>
         window._mapsReady = false;
@@ -1109,9 +1192,6 @@
     <script
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAN0Acj30PlztaGf1WtmYXH2qQTdshLsrg&libraries=places&callback=initMaps&loading=async"
         async defer></script>
-
-    <!-- Script principal do site (header, menu mobile, ano) -->
-    <script src="script.js"></script>
 
     <!-- Lógica da calculadora de orçamento -->
     <script>
@@ -1160,6 +1240,7 @@
                 });
 
                 setupFreteToggle();
+                setupCepLookup();
                 setupFormSubmit();
 
                 /* Expõe função para o callback do Google Maps */
@@ -1309,14 +1390,33 @@
             }
 
             /* ----------------------------------------------------------
+               HELPER — Parse de Valores (monetários e numéricos)
+            ---------------------------------------------------------- */
+            function parseMonedaPortuguesa(valor) {
+                if (typeof valor === 'number') return valor;
+                if (!valor) return 0;
+                // Remove "R$", espaços e converte "," para "."
+                var str = String(valor).trim().replace(/R\$\s*/g, '').replace(/\./g, '').replace(/,/g, '.');
+                var num = parseFloat(str);
+                return isNaN(num) ? 0 : num;
+            }
+
+            function parseNumero(valor) {
+                if (typeof valor === 'number') return valor;
+                if (!valor) return 0;
+                var num = parseInt(String(valor).trim(), 10);
+                return isNaN(num) ? 0 : num;
+            }
+
+            /* ----------------------------------------------------------
                CÁLCULO — Produto (teto de quantidade)
             ---------------------------------------------------------- */
             function calcularProduto(codigo, quantidade) {
                 var tiers = gelosData
                     .filter(function (r) { return r['código'] === codigo && r['quantidade'] !== null; })
                     .sort(function (a, b) { 
-                        var aQty = parseInt(a['quantidade'], 10) || 0;
-                        var bQty = parseInt(b['quantidade'], 10) || 0;
+                        var aQty = parseNumero(a['quantidade']);
+                        var bQty = parseNumero(b['quantidade']);
                         return aQty - bQty; 
                     });
 
@@ -1324,18 +1424,18 @@
 
                 /* Teto: menor faixa onde faixa >= quantidade do usuário */
                 var tier = tiers.find(function (t) { 
-                    var tierQty = parseInt(t['quantidade'], 10) || 0;
+                    var tierQty = parseNumero(t['quantidade']);
                     return tierQty >= quantidade; 
                 });
 
                 if (!tier) return { outOfRange: true };
 
-                var unitario = parseFloat(tier['valor por saco']) || 0;
+                var unitario = parseMonedaPortuguesa(tier['valor por saco']);
                 return {
                     outOfRange: false,
                     valorUnitario: unitario,
                     valorTotal: parseFloat((unitario * quantidade).toFixed(2)),
-                    faixaQtd: parseInt(tier['quantidade'], 10)
+                    faixaQtd: parseNumero(tier['quantidade'])
                 };
             }
 
@@ -1350,30 +1450,30 @@
                 // 2) Pega o valor de referência (R$/km) pela faixa de distância e quantidade
                 var distTiers = unique(freteData.map(function (r) { return r['distancia']; }))
                     .sort(function (a, b) { 
-                        var aVal = parseFloat(a) || 0;
-                        var bVal = parseFloat(b) || 0;
+                        var aVal = parseNumero(a);
+                        var bVal = parseNumero(b);
                         return aVal - bVal; 
                     });
                 var qtyTiers  = unique(freteData.map(function (r) { return r['quantidade']; }))
                     .sort(function (a, b) { 
-                        var aVal = parseInt(a, 10) || 0;
-                        var bVal = parseInt(b, 10) || 0;
+                        var aVal = parseNumero(a);
+                        var bVal = parseNumero(b);
                         return aVal - bVal; 
                     });
 
-                var distTier = distTiers.find(function (d) { return parseFloat(d) >= distKm; });
-                var qtyTier  = qtyTiers.find(function (q) { return parseInt(q, 10) >= quantidade; });
+                var distTier = distTiers.find(function (d) { return parseNumero(d) >= distKm; });
+                var qtyTier  = qtyTiers.find(function (q) { return parseNumero(q) >= quantidade; });
 
                 if (!distTier || !qtyTier) return { outOfRange: true };
 
                 var row = freteData.find(function (r) {
-                    return parseFloat(r['distancia']) === parseFloat(distTier) && 
-                           parseInt(r['quantidade'], 10) === parseInt(qtyTier, 10);
+                    return parseNumero(r['distancia']) === parseNumero(distTier) && 
+                           parseNumero(r['quantidade']) === parseNumero(qtyTier);
                 });
 
-                if (!row) return null;
+                if (!row) return { outOfRange: true };
 
-                var valorPorKm = parseFloat(row['valor']) || 0;
+                var valorPorKm = parseMonedaPortuguesa(row['valor']);
 
                 // 3) Multiplica valor de referência pela distância (ida)
                 var valorIda = valorPorKm * distKm;
@@ -1397,6 +1497,9 @@
                 };
             }
 
+            /* ----------------------------------------------------------
+               GOOGLE MAPS — Autocomplete
+            ---------------------------------------------------------- */
             /* ----------------------------------------------------------
                GOOGLE MAPS — Autocomplete
             ---------------------------------------------------------- */
@@ -1463,19 +1566,125 @@
             function setupFreteToggle() {
                 var toggle     = document.getElementById('calcularFrete');
                 var freteGroup = document.getElementById('freteGroup');
-                var enderecoEl = document.getElementById('endereco');
+                var cepEl      = document.getElementById('cep');
 
                 /* Estado inicial */
                 freteGroup.style.display = 'block';
-                enderecoEl.required = true;
+                cepEl.required = false; // CEP é opcional agora
 
                 toggle.addEventListener('change', function () {
                     var ativo = toggle.checked;
                     freteGroup.style.display = ativo ? 'block' : 'none';
-                    enderecoEl.required = ativo;
+                    cepEl.required = false; // Sempre opcional
 
                     if (ativo && window._mapsReady) {
                         setTimeout(initAutocomplete, 50);
+                    }
+                });
+            }
+
+            /* ----------------------------------------------------------
+               CEP LOOKUP — ViaCEP Integration
+            ---------------------------------------------------------- */
+            function setupCepLookup() {
+                var cepEl       = document.getElementById('cep');
+                var enderecoEl  = document.getElementById('endereco');
+                var statusEl    = document.getElementById('cepStatus');
+                var buscarBtn   = document.getElementById('buscarCep');
+
+                function formatCep(value) {
+                    // Remove tudo que não é número
+                    var digits = value.replace(/\D/g, '');
+                    // Formata para XXXXX-XXX
+                    if (digits.length > 5) {
+                        return digits.substring(0, 5) + '-' + digits.substring(5, 8);
+                    }
+                    return digits;
+                }
+
+                function showStatus(message, isError) {
+                    statusEl.textContent = message;
+                    statusEl.style.display = 'block';
+                    statusEl.style.color = isError ? '#dc2626' : '#10b981';
+                }
+
+                function hideStatus() {
+                    statusEl.style.display = 'none';
+                }
+
+                function buscarEndereco() {
+                    var cep = cepEl.value.trim();
+                    if (!cep) {
+                        showStatus('Digite um CEP primeiro', true);
+                        cepEl.focus();
+                        return;
+                    }
+
+                    // Formata o CEP
+                    var cepFormatado = formatCep(cep);
+                    cepEl.value = cepFormatado;
+
+                    // Extrai apenas os dígitos
+                    var cepDigitos = cepFormatado.replace(/\D/g, '');
+
+                    if (cepDigitos.length !== 8) {
+                        showStatus('CEP deve ter 8 dígitos', true);
+                        return;
+                    }
+
+                    // Desabilita o botão durante a busca
+                    buscarBtn.disabled = true;
+                    buscarBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i>';
+
+                    // Busca endereço na ViaCEP
+                    showStatus('Buscando endereço…', false);
+
+                    fetch('https://viacep.com.br/ws/' + cepDigitos + '/json/')
+                        .then(function (response) { return response.json(); })
+                        .then(function (data) {
+                            if (data.erro) {
+                                showStatus('CEP não encontrado', true);
+                                enderecoEl.value = '';
+                                return;
+                            }
+
+                            // Monta endereço: rua, cidade - estado
+                            var endereco = data.logradouro
+                                ? (data.logradouro + ', ' + data.bairro + ' - ' + data.city + ', ' + data.uf)
+                                : (data.bairro + ' - ' + data.city + ', ' + data.uf);
+
+                            // Sempre atualiza o endereço quando clicar no botão
+                            enderecoEl.value = endereco;
+                            hideStatus();
+                        })
+                        .catch(function (err) {
+                            showStatus('Erro ao buscar CEP. Tente novamente.', true);
+                            enderecoEl.value = '';
+                        })
+                        .finally(function () {
+                            // Reabilita o botão
+                            buscarBtn.disabled = false;
+                            buscarBtn.innerHTML = '<i class="bx bx-search"></i>';
+                        });
+                }
+
+                // Event listener para o botão de busca
+                buscarBtn.addEventListener('click', buscarEndereco);
+
+                // Permite buscar também pressionando Enter no campo CEP
+                cepEl.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        buscarEndereco();
+                    }
+                });
+
+                // Formata em tempo real enquanto digita
+                cepEl.addEventListener('input', function () {
+                    cepEl.value = formatCep(cepEl.value);
+                    // Esconde status quando usuário começa a digitar
+                    if (statusEl.style.display !== 'none') {
+                        hideStatus();
                     }
                 });
             }
@@ -1493,7 +1702,10 @@
                 var empresa    = document.getElementById('empresa').value.trim();
                 var telefone   = document.getElementById('telefone').value.trim();
                 var freteAtivo = document.getElementById('calcularFrete').checked;
+                var cepEl      = document.getElementById('cep');
                 var enderecoEl = document.getElementById('endereco');
+                var numeroEl   = document.getElementById('numero');
+                var complementoEl = document.getElementById('complemento');
 
                 /* Coletar produtos selecionados (checkbox marcado) */
                 var selectedProducts = [];
@@ -1513,8 +1725,9 @@
                 }
 
                 if (freteAtivo && !enderecoEl.value.trim()) {
-                    alert('Por favor, informe o endereço de entrega.');
-                    enderecoEl.focus(); return;
+                    alert('Por favor, informe o endereço de entrega. Você pode usar o CEP para preenchimento automático ou digitar manualmente.');
+                    enderecoEl.focus();
+                    return;
                 }
 
                 setLoading(true);
@@ -1522,7 +1735,18 @@
                 var promise = Promise.resolve(null);
 
                 if (freteAtivo) {
-                    promise = getRouteData(enderecoEl.value.trim());
+                    // Monta endereço completo para Google Maps
+                    var enderecoParaMaps = enderecoEl.value.trim();
+                    if (numeroEl.value.trim()) {
+                        enderecoParaMaps += ', ' + numeroEl.value.trim();
+                    }
+                    if (complementoEl.value.trim()) {
+                        enderecoParaMaps += ', ' + complementoEl.value.trim();
+                    }
+                    if (cepEl.value.trim()) {
+                        enderecoParaMaps += ', CEP: ' + cepEl.value.trim();
+                    }
+                    promise = getRouteData(enderecoParaMaps);
                 }
 
                 promise.then(function (routeData) {
@@ -1547,7 +1771,18 @@
                     var enderecoCompleto = null;
 
                     if (freteAtivo) {
+                        // Monta endereço completo com rua, número (se informado), complemento e CEP (se informado)
                         enderecoCompleto = enderecoEl.value.trim();
+                        if (numeroEl.value.trim()) {
+                            enderecoCompleto += ', ' + numeroEl.value.trim();
+                        }
+                        if (complementoEl.value.trim()) {
+                            enderecoCompleto += ', ' + complementoEl.value.trim();
+                        }
+                        if (cepEl.value.trim()) {
+                            enderecoCompleto += ' - CEP: ' + cepEl.value.trim();
+                        }
+                        
                         precoFrete = calcularFrete(totalQtd, distKm, pedagioIda);
                         if (!precoFrete || precoFrete.outOfRange) {
                             showError('Endereço fora da área de cobertura ou quantidade acima do limite. Entre em contato para orçamento especial.');
