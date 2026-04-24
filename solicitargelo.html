@@ -1314,21 +1314,28 @@
             function calcularProduto(codigo, quantidade) {
                 var tiers = gelosData
                     .filter(function (r) { return r['código'] === codigo && r['quantidade'] !== null; })
-                    .sort(function (a, b) { return a['quantidade'] - b['quantidade']; });
+                    .sort(function (a, b) { 
+                        var aQty = parseInt(a['quantidade'], 10) || 0;
+                        var bQty = parseInt(b['quantidade'], 10) || 0;
+                        return aQty - bQty; 
+                    });
 
                 if (!tiers.length) return null;
 
                 /* Teto: menor faixa onde faixa >= quantidade do usuário */
-                var tier = tiers.find(function (t) { return t['quantidade'] >= quantidade; });
+                var tier = tiers.find(function (t) { 
+                    var tierQty = parseInt(t['quantidade'], 10) || 0;
+                    return tierQty >= quantidade; 
+                });
 
                 if (!tier) return { outOfRange: true };
 
-                var unitario = tier['valor por saco'];
+                var unitario = parseFloat(tier['valor por saco']) || 0;
                 return {
                     outOfRange: false,
                     valorUnitario: unitario,
                     valorTotal: parseFloat((unitario * quantidade).toFixed(2)),
-                    faixaQtd: tier['quantidade']
+                    faixaQtd: parseInt(tier['quantidade'], 10)
                 };
             }
 
@@ -1342,22 +1349,31 @@
 
                 // 2) Pega o valor de referência (R$/km) pela faixa de distância e quantidade
                 var distTiers = unique(freteData.map(function (r) { return r['distancia']; }))
-                    .sort(function (a, b) { return a - b; });
+                    .sort(function (a, b) { 
+                        var aVal = parseFloat(a) || 0;
+                        var bVal = parseFloat(b) || 0;
+                        return aVal - bVal; 
+                    });
                 var qtyTiers  = unique(freteData.map(function (r) { return r['quantidade']; }))
-                    .sort(function (a, b) { return a - b; });
+                    .sort(function (a, b) { 
+                        var aVal = parseInt(a, 10) || 0;
+                        var bVal = parseInt(b, 10) || 0;
+                        return aVal - bVal; 
+                    });
 
-                var distTier = distTiers.find(function (d) { return d >= distKm; });
-                var qtyTier  = qtyTiers.find(function (q) { return q >= quantidade; });
+                var distTier = distTiers.find(function (d) { return parseFloat(d) >= distKm; });
+                var qtyTier  = qtyTiers.find(function (q) { return parseInt(q, 10) >= quantidade; });
 
                 if (!distTier || !qtyTier) return { outOfRange: true };
 
                 var row = freteData.find(function (r) {
-                    return r['distancia'] === distTier && r['quantidade'] === qtyTier;
+                    return parseFloat(r['distancia']) === parseFloat(distTier) && 
+                           parseInt(r['quantidade'], 10) === parseInt(qtyTier, 10);
                 });
 
                 if (!row) return null;
 
-                var valorPorKm = row['valor'];
+                var valorPorKm = parseFloat(row['valor']) || 0;
 
                 // 3) Multiplica valor de referência pela distância (ida)
                 var valorIda = valorPorKm * distKm;
