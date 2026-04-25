@@ -785,6 +785,37 @@
             line-height: 1.5;
         }
 
+        .item-unitario {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .item-unitario label {
+            font-size: 0.8rem;
+            color: var(--clr-gray);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .item-unitario input {
+            width: 120px;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 0.95rem;
+            color: var(--clr-dark);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .item-unitario input:focus {
+            border-color: var(--clr-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
         .item-value {
             font-family: var(--ff-heading);
             font-size: 1.25rem;
@@ -1226,6 +1257,7 @@
             var gelosData = [];
             var freteData = [];
             var autocompleteInstance = null;
+            var currentQuoteData = null;
 
             /* ----------------------------------------------------------
                INICIALIZAÇÃO
@@ -1815,15 +1847,16 @@
                EXIBIÇÃO DO RESULTADO
             ---------------------------------------------------------- */
             function displayResult(data) {
-                var produtos    = data.produtos;
-                var freteAtivo  = data.freteAtivo;
-                var distanciaKm = data.distanciaKm;
-                var precoFrete  = data.precoFrete;
+                currentQuoteData = JSON.parse(JSON.stringify(data));
+                var produtos    = currentQuoteData.produtos;
+                var freteAtivo  = currentQuoteData.freteAtivo;
+                var distanciaKm = currentQuoteData.distanciaKm;
+                var precoFrete  = currentQuoteData.precoFrete;
 
                 var totalGeral = 0;
                 var html = '';
 
-                produtos.forEach(function (p) {
+                produtos.forEach(function (p, index) {
                     var unitFmt  = fmt(p.preco.valorUnitario);
                     var totalFmt = fmt(p.preco.valorTotal);
                     totalGeral  += p.preco.valorTotal;
@@ -1833,9 +1866,13 @@
                         + '<div class="item-body">'
                         + '<div class="item-label">Produto</div>'
                         + '<div class="item-desc">' + esc(p.nome) + '<br>'
-                        + p.quantidade + ' ' + (p.quantidade === 1 ? 'saco' : 'sacos') + ' × ' + unitFmt + '/saco'
+                        + p.quantidade + ' ' + (p.quantidade === 1 ? 'saco' : 'sacos') + '</div>'
+                        + '<div class="item-unitario">'
+                        + '<label for="unitario-' + index + '">Valor unitário</label>'
+                        + '<input type="text" id="unitario-' + index + '" class="unitario-input" data-index="' + index + '" value="' + formatDecimal(p.preco.valorUnitario) + '">'
+                        + '<span>/saco</span>'
                         + '</div>'
-                        + '<div class="item-value">' + totalFmt + '</div>'
+                        + '<div class="item-value" id="item-total-' + index + '">' + totalFmt + '</div>'
                         + '</div></div>';
                 });
 
@@ -1905,14 +1942,75 @@
                 cont.innerHTML = html;
                 cont.style.display = 'block';
 
+                attachEditableUnitarios();
+                updateWhatsAppLink();
+
                 document.getElementById('btnPdf').addEventListener('click', function () {
-                    abrirPDF(data, totalGeral);
+                    abrirPDF(currentQuoteData, calculateQuoteTotal());
                 });
 
                 if (window.innerWidth < 992) {
                     document.getElementById('resultadoCard')
                         .scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
+            }
+
+            function formatDecimal(value) {
+                return value.toFixed(2).replace('.', ',');
+            }
+
+            function calculateQuoteTotal() {
+                if (!currentQuoteData) return 0;
+                var total = currentQuoteData.produtos.reduce(function (sum, p) {
+                    return sum + (p.preco.valorTotal || 0);
+                }, 0);
+                if (currentQuoteData.precoFrete) {
+                    total += currentQuoteData.precoFrete.valorTotal || 0;
+                }
+                return total;
+            }
+
+            function updateWhatsAppLink() {
+                var waLink = document.getElementById('btnWhatsApp');
+                if (!waLink || !currentQuoteData) return;
+
+                var waMsg = 'Olá! Fiz uma simulação no site e gostaria de confirmar o pedido:\n\n';
+                waMsg += '*Produtos:*\n';
+                currentQuoteData.produtos.forEach(function (p) {
+                    waMsg += '• ' + p.nome + ': ' + p.quantidade + ' saco(s) — ' + fmt(p.preco.valorTotal) + '\n';
+                });
+                if (currentQuoteData.freteAtivo && currentQuoteData.precoFrete) {
+                    var waFrete = currentQuoteData.precoFrete.isGratuito ? 'Gratuito' : fmt(currentQuoteData.precoFrete.valorTotal);
+                    waMsg += '\n*Frete:* ' + waFrete;
+                    if (currentQuoteData.enderecoCompleto) {
+                        waMsg += '\n*Endereço de entrega:* ' + currentQuoteData.enderecoCompleto;
+                    }
+                } else {
+                    waMsg += '\n*Frete:* Retirada na fábrica';
+                }
+                waMsg += '\n\n*Total estimado: ' + fmt(calculateQuoteTotal()) + '*';
+                waLink.href = 'https://wa.me/5515998179440?text=' + encodeURIComponent(waMsg);
+            }
+
+            function attachEditableUnitarios() {
+                var inputs = document.querySelectorAll('.unitario-input');
+                inputs.forEach(function (input) {
+                    input.addEventListener('change', function () {
+                        var index = parseInt(input.dataset.index, 10);
+                        var value = parseMonedaPortuguesa(input.value);
+                        if (!value || value <= 0) {
+                            input.value = formatDecimal(currentQuoteData.produtos[index].preco.valorUnitario);
+                            return;
+                        }
+
+                        currentQuoteData.produtos[index].preco.valorUnitario = value;
+                        currentQuoteData.produtos[index].preco.valorTotal = parseFloat((value * currentQuoteData.produtos[index].quantidade).toFixed(2));
+                        document.getElementById('item-total-' + index).textContent = fmt(currentQuoteData.produtos[index].preco.valorTotal);
+                        document.querySelector('.resultado-total .total-value').textContent = fmt(calculateQuoteTotal());
+                        updateWhatsAppLink();
+                        input.value = formatDecimal(value);
+                    });
+                });
             }
 
             function showError(msg) {
