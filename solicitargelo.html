@@ -816,6 +816,13 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
+        .frete-endereco-input {
+            flex: 1 !important;
+            width: auto !important;
+            min-width: 160px;
+            max-width: 100%;
+        }
+
         .item-value {
             font-family: var(--ff-heading);
             font-size: 1.25rem;
@@ -1877,20 +1884,21 @@
                 });
 
                 if (freteAtivo && precoFrete) {
-                    /* Valor de frete sem pedágio para exibição separada */
                     var valorFreteBase = precoFrete.valorTotal - (precoFrete.pedagioTotal || 0);
-                    var freteFmt = valorFreteBase === 0
-                        ? '<span class="tag-gratuito">Gratuito</span>'
-                        : fmt(valorFreteBase);
-
                     totalGeral += precoFrete.valorTotal;
 
                     html += '<div class="resultado-item">'
                         + '<div class="item-icon"><i class="bx bx-map-pin"></i></div>'
                         + '<div class="item-body">'
                         + '<div class="item-label">Frete</div>'
-                        + '<div class="item-desc">' + esc(data.enderecoCompleto) + '</div>'
-                        + '<div class="item-value">' + freteFmt + '</div>'
+                        + '<div class="item-unitario">'
+                        + '<label for="frete-endereco">Endereço</label>'
+                        + '<input type="text" id="frete-endereco" class="frete-endereco-input">'
+                        + '</div>'
+                        + '<div class="item-unitario">'
+                        + '<label for="frete-valor">Valor</label>'
+                        + '<input type="text" id="frete-valor" class="frete-valor-input" value="' + formatDecimal(valorFreteBase) + '">'
+                        + '</div>'
                         + '</div></div>';
 
                     if (precoFrete.pedagioTotal > 0) {
@@ -1929,7 +1937,7 @@
                 waMsg += '\n\n*Total estimado: ' + fmt(totalGeral) + '*';
 
                 html += '<div class="resultado-cta-btns">'
-                    + '<a href="https://wa.me/5515998179440?text=' + encodeURIComponent(waMsg) + '"'
+                    + '<a id="btnWhatsApp" href="https://wa.me/5515998179440?text=' + encodeURIComponent(waMsg) + '"'
                     + ' target="_blank" rel="noopener noreferrer"'
                     + ' class="btn btn-primary resultado-cta-btn">'
                     + '<i class="bx bxl-whatsapp"></i> Confirmar pelo WhatsApp</a>'
@@ -1943,6 +1951,7 @@
                 cont.style.display = 'block';
 
                 attachEditableUnitarios();
+                attachEditableFrete();
                 updateWhatsAppLink();
 
                 document.getElementById('btnPdf').addEventListener('click', function () {
@@ -2011,6 +2020,36 @@
                         input.value = formatDecimal(value);
                     });
                 });
+            }
+
+            function attachEditableFrete() {
+                var enderecoInput = document.getElementById('frete-endereco');
+                var valorInput    = document.getElementById('frete-valor');
+
+                if (enderecoInput) {
+                    enderecoInput.value = currentQuoteData.enderecoCompleto || '';
+                    enderecoInput.addEventListener('change', function () {
+                        currentQuoteData.enderecoCompleto = enderecoInput.value.trim();
+                        updateWhatsAppLink();
+                    });
+                }
+
+                if (valorInput) {
+                    valorInput.addEventListener('change', function () {
+                        var newBase = parseMonedaPortuguesa(valorInput.value);
+                        if (isNaN(newBase) || newBase < 0) {
+                            var currentBase = (currentQuoteData.precoFrete.valorTotal || 0) - (currentQuoteData.precoFrete.pedagioTotal || 0);
+                            valorInput.value = formatDecimal(currentBase);
+                            return;
+                        }
+                        var pedagio = currentQuoteData.precoFrete.pedagioTotal || 0;
+                        currentQuoteData.precoFrete.valorTotal = parseFloat((newBase + pedagio).toFixed(2));
+                        currentQuoteData.precoFrete.isGratuito = (newBase === 0);
+                        document.querySelector('.resultado-total .total-value').textContent = fmt(calculateQuoteTotal());
+                        updateWhatsAppLink();
+                        valorInput.value = formatDecimal(newBase);
+                    });
+                }
             }
 
             function showError(msg) {
